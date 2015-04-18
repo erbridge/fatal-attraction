@@ -144,7 +144,7 @@ function addPlayer(x, y) {
 
     player.trailTimer = game.time.create(false);
 
-    player.trailTimer.loop(Phaser.Timer.SECOND / 2, function() {
+    player.trailTimer.loop(Phaser.Timer.SECOND / 4, function() {
         addTrail(player);
     }, this);
 
