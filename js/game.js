@@ -5,7 +5,8 @@
 var game,
     planets,
     currentPlanet,
-    players;
+    players,
+    controls;
 
 window.startGame = function() {
     game = new Phaser.Game(
@@ -26,6 +27,8 @@ function preload() {
 }
 
 function create() {
+    controls = game.input.keyboard.createCursorKeys();
+
     game.physics.startSystem(Phaser.Physics.P2JS);
 
     planets = game.add.group();
@@ -47,19 +50,27 @@ function create() {
 
 function update() {
     players.forEachAlive(movePlayer, this);
-    planets.forEachAlive(movePlanet, this)
+    planets.forEachAlive(movePlanet, this);
 }
 
-function movePlayer(obj) {
-    move(obj, 15);
+function movePlayer(player) {
+    move(player, 15);
+
+    if (controls.left.isDown) {
+        player.body.rotateLeft(100);
+    } else if (controls.right.isDown) {
+        player.body.rotateRight(100);
+    } else {
+        player.body.setZeroRotation();
+    }
 }
 
-function movePlanet(obj) {
-    if (obj === currentPlanet) {
+function movePlanet(planet) {
+    if (planet === currentPlanet) {
         return;
     }
 
-    move(obj, 5);
+    move(planet, 5);
 }
 
 function move(obj, speed) {
