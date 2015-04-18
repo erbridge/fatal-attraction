@@ -60,6 +60,11 @@ var mainState = {
 }
 
 function playerHit(player, body) {
+    // FIXME: This is if they hit a wall.
+    if (body === null) {
+        return;
+    }
+
     player.kill();
 
     if (body.sprite.key === 'player') {
