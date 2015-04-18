@@ -69,17 +69,33 @@ var mainState = {
 
         players.forEachAlive(maybeFire, this);
 
-        lerpWorldTowardsCenter();
+        if (players.countLiving() === 1) {
+            lerpWorldCenterTowardsPlayer(players.getFirstAlive());
+        } else {
+            lerpWorldCenterTowardsCurrentPlanet();
+        }
 
         players.forEachAlive(maybeWrap, this);
         planets.forEachAlive(maybeWrap, this);
         projectiles.forEachAlive(maybeWrap, this);
     },
+
+    shutdown: function() {
+        // FIXME: Tidy up and reset everything!
+    },
 }
 
-function lerpWorldTowardsCenter() {
-    var x = (game.world.centerX - currentPlanet.body.x) / 100;
-    var y = (game.world.centerY - currentPlanet.body.y) / 100;
+function lerpWorldCenterTowardsCurrentPlanet() {
+    lerpWorldCenterTowardsXY(currentPlanet.body.x, currentPlanet.body.y, 50);
+}
+
+function lerpWorldCenterTowardsPlayer(player) {
+    lerpWorldCenterTowardsXY(player.body.x, player.body.y, 100);
+}
+
+function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
+    var x = (game.world.centerX - targetX) / lerpFactor;
+    var y = (game.world.centerY - targetY) / lerpFactor;
 
     function lerp(obj) {
         obj.body.x += x;
