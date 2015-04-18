@@ -40,6 +40,7 @@ var mainState = {
 
             if (currentPlanet === undefined) {
                 currentPlanet = planet;
+                currentPlanet.tint = 0xb5bd68;
             }
         }
 
