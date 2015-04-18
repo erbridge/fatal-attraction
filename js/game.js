@@ -153,22 +153,6 @@ function movePlayer(player) {
         player.body.setZeroRotation();
     }
 
-    var speed = 30;
-
-    var angle = player.body.rotation - Math.PI / 2;
-
-    player.body.velocity.x += Math.cos(angle) * speed;
-    player.body.velocity.y += Math.sin(angle) * speed;
-
-    if (player.body.lastRotation !== undefined) {
-        var lastAngle = player.body.lastRotation - Math.PI / 2;
-
-        player.body.velocity.x -= Math.cos(lastAngle) * speed;
-        player.body.velocity.y -= Math.sin(lastAngle) * speed;
-    }
-
-    player.body.lastRotation = player.body.rotation;
-
     move(player, 10);
 }
 
