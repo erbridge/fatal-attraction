@@ -45,6 +45,7 @@ var mainState = {
         var player = players.create(50, 50, 'player');
         game.physics.p2.enable(player);
 
+        player.anchor = new Phaser.Point(0.5, 0.5);
         player.body.rotation = Math.PI * 3 / 4;
 
         player.body.onBeginContact.add(function(body) {
@@ -67,6 +68,8 @@ var mainState = {
 function addPlanet(x, y, isCurrent) {
     var planet = planets.create(x, y, 'planet');
     game.physics.p2.enable(planet);
+
+    planet.anchor = new Phaser.Point(0.5, 0.5);
 
     planet.body.velocity.x = game.rnd.integerInRange(-20, 20);
     planet.body.velocity.y = game.rnd.integerInRange(-20, 20);
