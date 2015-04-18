@@ -52,7 +52,7 @@ var mainState = {
         projectiles = game.add.group();
 
         for (var i = 0; i < 10; i++) {
-            addPlanet(game.rnd.integerInRange(200, game.world.width - 200), game.rnd.integerInRange(200, game.world.height - 200), false);
+            addPlanet(game.rnd.integerInRange(300, game.world.width - 300), game.rnd.integerInRange(300, game.world.height - 300), false);
         }
 
         addPlanet(game.world.centerX, game.world.centerY, true);
@@ -78,12 +78,13 @@ function addPlanet(x, y, isCurrent) {
 
     planet.anchor = new Phaser.Point(0.5, 0.5);
 
-    planet.body.velocity.x = game.rnd.integerInRange(-20, 20);
-    planet.body.velocity.y = game.rnd.integerInRange(-20, 20);
+    planet.body.velocity.x = game.rnd.integerInRange(-100, 100);
+    planet.body.velocity.y = game.rnd.integerInRange(-100, 100);
 
     planet.body.rotateRight(game.rnd.integerInRange(-20, 20));
 
-    planet.body.mass = 100;
+    planet.body.mass    = 100;
+    planet.body.damping = 0.3;
 
     planet.body.setCollisionGroup(planetCollisionGroup);
     planet.body.collides(playerCollisionGroup);
@@ -176,7 +177,11 @@ function accelerateToObject(obj, target, forceCoefficient) {
     var x = target.x - obj.x;
     var y = target.y - obj.y;
 
-    var force = gravityDirection * forceCoefficient * 100 * obj.body.mass * target.body.mass / (x * x + y * y);
+    var force = Math.min(
+        10000000,
+        gravityDirection * forceCoefficient * 100 * obj.body.mass * target.body.mass / (x * x + y * y)
+    );
+
     var angle = Math.atan2(y, x);
 
     obj.body.force.x = Math.cos(angle) * force;
@@ -243,7 +248,7 @@ function projectileHit(player, projectile, body) {
 }
 
 function maybeWrap(obj) {
-    game.world.wrap(obj.body);
+    game.world.wrap(obj.body, obj.height);
 }
 
 })();
