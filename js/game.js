@@ -47,6 +47,10 @@ var mainState = {
 
         var player = players.create(100, 100, 'player');
         game.physics.p2.enable(player);
+
+        player.body.onBeginContact.add(function(body) {
+            playerHit(player, body);
+        }, this);
     },
 
     update: function() {
@@ -54,6 +58,15 @@ var mainState = {
         planets.forEachAlive(movePlanet, this);
     },
 }
+
+function playerHit(player, body) {
+    player.kill();
+
+    if (body.sprite.key === 'player') {
+        body.kill();
+    }
+}
+
 
 function movePlayer(player) {
     move(player, 15);
