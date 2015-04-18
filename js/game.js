@@ -247,7 +247,7 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
     var angle = Math.atan2(y, x);
 
     var force = Math.min(
-        25000000,
+        20000000,
         gravityDirection * forceCoefficient * obj.body.mass * target.body.mass / squaredDistance
     );
 
