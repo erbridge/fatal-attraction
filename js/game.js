@@ -3,6 +3,9 @@
 'use strict';
 
 var game,
+    planetCollisionGroup,
+    playerCollisionGroup,
+    controls,
     planets,
     currentPlanet,
     players,
@@ -30,6 +33,12 @@ var mainState = {
 
         game.physics.startSystem(Phaser.Physics.P2JS);
 
+        playerCollisionGroup = game.physics.p2.createCollisionGroup();
+        planetCollisionGroup = game.physics.p2.createCollisionGroup();
+
+        // Make things collide with the bounds.
+        game.physics.p2.updateBoundsCollisionGroup();
+
         gravityDirection = 1;
 
         planets = game.add.group();
@@ -47,6 +56,9 @@ var mainState = {
 
         player.anchor = new Phaser.Point(0.5, 0.5);
         player.body.rotation = Math.PI * 3 / 4;
+
+        player.body.setCollisionGroup(playerCollisionGroup);
+        player.body.collides(planetCollisionGroup);
 
         player.body.onBeginContact.add(function(body) {
             playerHit(player, body);
@@ -74,7 +86,12 @@ function addPlanet(x, y, isCurrent) {
     planet.body.velocity.x = game.rnd.integerInRange(-20, 20);
     planet.body.velocity.y = game.rnd.integerInRange(-20, 20);
 
+    planet.body.rotateRight(game.rnd.integerInRange(-20, 20));
+
     planet.body.mass = 100;
+
+    planet.body.setCollisionGroup(planetCollisionGroup);
+    planet.body.collides(playerCollisionGroup);
 
     if (isCurrent) {
         setCurrentPlanet(planet);
