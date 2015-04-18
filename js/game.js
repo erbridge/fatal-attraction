@@ -154,11 +154,14 @@ function playerHit(player, body) {
 }
 
 function movePlayer(player) {
+    var sign = 0;
     if (controls.left.isDown) {
-        player.body.rotateLeft(100);
+        sign = -1;
     } else if (controls.right.isDown) {
-        player.body.rotateRight(100);
+        sign = 1;
     }
+
+    player.body.angularForce += sign * 30;
 
     move(player, 10);
 }
