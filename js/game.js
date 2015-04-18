@@ -45,7 +45,7 @@ var mainState = {
         projectileCollisionGroup = game.physics.p2.createCollisionGroup();
 
         // Make things collide with the bounds.
-        game.physics.p2.updateBoundsCollisionGroup();
+        // game.physics.p2.updateBoundsCollisionGroup();
 
         players     = game.add.group();
         planets     = game.add.group();
@@ -55,7 +55,7 @@ var mainState = {
             addPlanet(game.rnd.integerInRange(200, game.world.width - 200), game.rnd.integerInRange(200, game.world.height - 200), false);
         }
 
-        addPlanet(game.world.width / 2, game.world.height / 2, true);
+        addPlanet(game.world.centerX, game.world.centerY, true);
 
         addPlayer(50, 50);
     },
@@ -65,6 +65,10 @@ var mainState = {
         planets.forEachAlive(movePlanet, this);
 
         players.forEachAlive(maybeFire, this);
+
+        players.forEachAlive(maybeWrap, this);
+        planets.forEachAlive(maybeWrap, this);
+        projectiles.forEachAlive(maybeWrap, this);
     },
 }
 
@@ -108,9 +112,9 @@ function setCurrentPlanet(planet, gravityDirectionToSet) {
 
     planet.body.mass = 10000;
 
-    currentPlanet = planet;
-
     gravityDirection = gravityDirectionToSet;
+
+    currentPlanet = planet;
 }
 
 function addPlayer(x, y) {
@@ -236,6 +240,10 @@ function projectileHit(player, projectile, body) {
     }
 
     setCurrentPlanet(body.sprite, projectile.fireType);
+}
+
+function maybeWrap(obj) {
+    game.world.wrap(obj.body);
 }
 
 })();
