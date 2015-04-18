@@ -83,8 +83,9 @@ function addPlanet(x, y, isCurrent) {
 
     planet.body.rotateRight(game.rnd.integerInRange(-20, 20));
 
-    planet.body.mass    = 100;
-    planet.body.damping = 0.3;
+    planet.body.mass    = 1000;
+    planet.body.damping = 0;
+    planet.body.angularDamping = 0;
 
     planet.body.setCollisionGroup(planetCollisionGroup);
     planet.body.collides(playerCollisionGroup);
@@ -111,7 +112,7 @@ function setCurrentPlanet(planet, gravityDirectionToSet) {
         planet.tint = 0xb294bb;
     }
 
-    planet.body.mass = 10000;
+    planet.body.mass = 1000000;
 
     gravityDirection = gravityDirectionToSet;
 
@@ -124,6 +125,9 @@ function addPlayer(x, y) {
 
     player.anchor = new Phaser.Point(0.5, 0.5);
     player.body.rotation = Math.PI * 3 / 4;
+
+    player.body.damping = 0;
+    player.body.angularDamping = 0.99;
 
     player.body.setCollisionGroup(playerCollisionGroup);
     player.body.collides(playerCollisionGroup);
@@ -154,8 +158,6 @@ function movePlayer(player) {
         player.body.rotateLeft(100);
     } else if (controls.right.isDown) {
         player.body.rotateRight(100);
-    } else {
-        player.body.setZeroRotation();
     }
 
     move(player, 10);
@@ -174,15 +176,33 @@ function move(obj, forceCoefficient) {
 }
 
 function accelerateToObject(obj, target, forceCoefficient) {
-    var x = target.x - obj.x;
-    var y = target.y - obj.y;
+    var directX = target.x - obj.x;
+    var directY = target.y - obj.y;
+
+    var indirectX = directX + game.width;
+    var indirectY = directY + game.height;
+
+    var x;
+    if (Math.abs(directX) < Math.abs(indirectX)) {
+        x = directX;
+    } else {
+        x = indirectX;
+    }
+
+    var y;
+    if (Math.abs(directY) < Math.abs(indirectY)) {
+        y = directY;
+    } else {
+        y = indirectY;
+    }
+
+    var squaredDistance = (x * x + y * y);
+    var angle = Math.atan2(y, x);
 
     var force = Math.min(
-        10000000,
-        gravityDirection * forceCoefficient * 100 * obj.body.mass * target.body.mass / (x * x + y * y)
+        40000000,
+        gravityDirection * forceCoefficient * obj.body.mass * target.body.mass / squaredDistance
     );
-
-    var angle = Math.atan2(y, x);
 
     obj.body.force.x = Math.cos(angle) * force;
     obj.body.force.y = Math.sin(angle) * force;
@@ -219,6 +239,7 @@ function addProjectile(player, fireType) {
     projectile.body.velocity.y = Math.sin(angle) * 1000;
 
     projectile.body.damping = 0;
+    projectile.body.angularDamping = 0;
 
     projectile.body.setCollisionGroup(projectileCollisionGroup);
     projectile.body.collides(planetCollisionGroup);
@@ -250,7 +271,7 @@ function projectileHit(player, projectile, body) {
 }
 
 function maybeWrap(obj) {
-    game.world.wrap(obj.body, obj.height);
+    game.world.wrap(obj.body, Math.sqrt(obj.height / 2, obj.width / 2));
 }
 
 })();
