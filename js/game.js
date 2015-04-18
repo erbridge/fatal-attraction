@@ -7,7 +7,7 @@ var game,
     playerCollisionGroup,
     projectileCollisionGroup,
     controls,
-    trails,
+    // trails,
     planets,
     currentPlanet,
     players,
@@ -26,7 +26,7 @@ window.startGame = function() {
 
 var mainState = {
     preload: function() {
-        game.load.image('trail',      'assets/trail.png');
+        // game.load.image('trail',      'assets/trail.png');
         game.load.image('player',     'assets/player.png');
         game.load.image('planet',     'assets/planet.png');
         game.load.image('projectile', 'assets/projectile.png');
@@ -49,7 +49,7 @@ var mainState = {
         // Make things collide with the bounds.
         // game.physics.p2.updateBoundsCollisionGroup();
 
-        trails      = game.add.group();
+        // trails      = game.add.group();
         players     = game.add.group();
         planets     = game.add.group();
         projectiles = game.add.group();
@@ -86,6 +86,7 @@ function lerpWorldTowardsCenter() {
         obj.body.y += y;
     }
 
+    // trails.forEachAlive(lerp, this);
     players.forEachAlive(lerp, this);
     planets.forEachAlive(lerp, this);
     projectiles.forEachAlive(lerp, this);
@@ -158,13 +159,13 @@ function addPlayer(x, y) {
 
     player.canFire = true;
 
-    player.trailTimer = game.time.create(false);
+    // player.trailTimer = game.time.create(false);
 
-    player.trailTimer.loop(Phaser.Timer.SECOND / 4, function() {
-        addTrail(player);
-    }, this);
+    // player.trailTimer.loop(Phaser.Timer.SECOND / 4, function() {
+    //     addTrail(player);
+    // }, this);
 
-    player.trailTimer.start();
+    // player.trailTimer.start();
 }
 
 function playerHit(player, body) {
@@ -173,11 +174,11 @@ function playerHit(player, body) {
         return;
     }
 
-    player.trailTimer.destroy();
+    // player.trailTimer.destroy();
     player.kill();
 
     if (body.sprite.key === 'player') {
-        body.sprite.trailTimer.destroy();
+        // body.sprite.trailTimer.destroy();
         body.kill();
     }
 }
@@ -302,9 +303,10 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
     }
 }
 
-function addTrail(player) {
-    var trail = trails.create(player.x, player.y, 'trail');
-}
+// function addTrail(player) {
+//     var trail = trails.create(player.x, player.y, 'trail');
+//     trail.anchor = new Phaser.Point(0.5, 0.5);
+// }
 
 function maybeFire(player) {
     var fireType;
