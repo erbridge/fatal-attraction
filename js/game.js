@@ -46,8 +46,6 @@ var mainState = {
         game.physics.p2.enable(player);
 
         player.body.rotation = Math.PI * 3 / 4;
-        player.body.velocity.x = 15;
-        player.body.velocity.y = 15;
 
         player.body.onBeginContact.add(function(body) {
             playerHit(player, body);
@@ -106,8 +104,6 @@ function playerHit(player, body) {
 }
 
 function movePlayer(player) {
-    move(player, 10);
-
     if (controls.left.isDown) {
         player.body.rotateLeft(100);
     } else if (controls.right.isDown) {
@@ -115,6 +111,24 @@ function movePlayer(player) {
     } else {
         player.body.setZeroRotation();
     }
+
+    var speed = 30;
+
+    var angle = player.body.rotation - Math.PI / 2;
+
+    player.body.velocity.x += Math.cos(angle) * speed;
+    player.body.velocity.y += Math.sin(angle) * speed;
+
+    if (player.body.lastRotation !== undefined) {
+        var lastAngle = player.body.lastRotation - Math.PI / 2;
+
+        player.body.velocity.x -= Math.cos(lastAngle) * speed;
+        player.body.velocity.y -= Math.sin(lastAngle) * speed;
+    }
+
+    player.body.lastRotation = player.body.rotation;
+
+    move(player, 10);
 }
 
 function movePlanet(planet) {
