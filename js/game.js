@@ -6,7 +6,8 @@ var game,
     planets,
     currentPlanet,
     players,
-    controls;
+    controls,
+    gravityDirection;
 
 window.startGame = function() {
     game = new Phaser.Game(
@@ -29,6 +30,8 @@ var mainState = {
 
         game.physics.startSystem(Phaser.Physics.P2JS);
 
+        gravityDirection = 1;
+
         planets = game.add.group();
 
         for (var i = 0; i < 10; i++) {
@@ -50,6 +53,12 @@ var mainState = {
     update: function() {
         players.forEachAlive(movePlayer, this);
         planets.forEachAlive(movePlanet, this);
+
+        if (controls.up.isDown) {
+            gravityDirection = 1;
+        } else if (controls.down.isDown) {
+            gravityDirection = -1;
+        }
     },
 }
 
@@ -120,7 +129,7 @@ function accelerateToObject(obj, target, forceCoefficient) {
     var x = target.x - obj.x;
     var y = target.y - obj.y;
 
-    var force = forceCoefficient * 100 * obj.body.mass * target.body.mass / (x * x + y * y);
+    var force = gravityDirection * forceCoefficient * 100 * obj.body.mass * target.body.mass / (x * x + y * y);
     var angle = Math.atan2(y, x);
 
     obj.body.force.x = Math.cos(angle) * force;
