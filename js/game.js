@@ -69,10 +69,26 @@ var mainState = {
 
         players.forEachAlive(maybeFire, this);
 
+        lerpWorldTowardsCenter();
+
         players.forEachAlive(maybeWrap, this);
         planets.forEachAlive(maybeWrap, this);
         projectiles.forEachAlive(maybeWrap, this);
     },
+}
+
+function lerpWorldTowardsCenter() {
+    var x = (game.world.centerX - currentPlanet.body.x) / 100;
+    var y = (game.world.centerY - currentPlanet.body.y) / 100;
+
+    function lerp(obj) {
+        obj.body.x += x;
+        obj.body.y += y;
+    }
+
+    players.forEachAlive(lerp, this);
+    planets.forEachAlive(lerp, this);
+    projectiles.forEachAlive(lerp, this);
 }
 
 function addPlanet(x, y, isCurrent) {
@@ -283,8 +299,6 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
         angularForce += (objBottomRightToTargetX + objBottomRightToTargetY) / objBottomRightToTargetSquaredDistance;
 
         obj.body.angularForce = Math.min(10000, 10000 * angularForce);
-
-        console.log(obj.body.angularForce);
     }
 }
 
