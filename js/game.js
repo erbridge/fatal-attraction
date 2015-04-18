@@ -42,8 +42,12 @@ var mainState = {
 
         players = game.add.group();
 
-        var player = players.create(100, 100, 'player');
+        var player = players.create(50, 50, 'player');
         game.physics.p2.enable(player);
+
+        player.body.rotation = Math.PI * 3 / 4;
+        player.body.velocity.x = 15;
+        player.body.velocity.y = 15;
 
         player.body.onBeginContact.add(function(body) {
             playerHit(player, body);
