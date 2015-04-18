@@ -163,7 +163,7 @@ function movePlayer(player) {
 
     player.body.angularForce += sign * 30;
 
-    move(player, 10);
+    move(player, 10, false);
 }
 
 function movePlanet(planet) {
@@ -171,16 +171,47 @@ function movePlanet(planet) {
         return;
     }
 
-    move(planet, 1);
+    move(planet, 1, true);
 }
 
-function move(obj, forceCoefficient) {
-    accelerateToObject(obj, currentPlanet, forceCoefficient);
+function move(obj, forceCoefficient, shouldSpin) {
+    accelerateToObject(obj, currentPlanet, forceCoefficient, shouldSpin);
 }
 
-function accelerateToObject(obj, target, forceCoefficient) {
-    var directX = target.x - obj.x;
-    var directY = target.y - obj.y;
+function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
+    // These are axis aligned squares!
+    var objTopLeftX     = obj.x - obj.width / 2;
+    var objTopLeftY     = obj.y + obj.height / 2;
+
+    var objTopRightX    = obj.x + obj.width / 2;
+    var objTopRightY    = obj.y + obj.height / 2;
+
+    var objBottomLeftX  = obj.x - obj.width / 2;
+    var objBottomLeftY  = obj.y - obj.height / 2;
+
+    var objBottomRightX = obj.x + obj.width / 2;
+    var objBottomRightY = obj.y - obj.height / 2;
+
+    var averageObjX = (objTopLeftX + objTopRightX + objBottomLeftX + objBottomRightX) / 4;
+    var averageObjY = (objTopLeftY + objTopRightY + objBottomLeftY + objBottomRightY) / 4;
+
+    var targetTopLeftX     = target.x - target.width / 2;
+    var targetTopLeftY     = target.y + target.height / 2;
+
+    var targetTopRightX    = target.x + target.width / 2;
+    var targetTopRightY    = target.y + target.height / 2;
+
+    var targetBottomLeftX  = target.x - target.width / 2;
+    var targetBottomLeftY  = target.y - target.height / 2;
+
+    var targetBottomRightX = target.x + target.width / 2;
+    var targetBottomRightY = target.y - target.height / 2;
+
+    var averageTargetX = (targetTopLeftX + targetTopRightX + targetBottomLeftX + targetBottomRightX) / 4;
+    var averageTargetY = (targetTopLeftY + targetTopRightY + targetBottomLeftY + targetBottomRightY) / 4;
+
+    var directX = averageTargetX - averageObjX;
+    var directY = averageTargetY - averageObjY;
 
     var indirectX = directX + game.width;
     var indirectY = directY + game.height;
@@ -203,12 +234,45 @@ function accelerateToObject(obj, target, forceCoefficient) {
     var angle = Math.atan2(y, x);
 
     var force = Math.min(
-        40000000,
+        25000000,
         gravityDirection * forceCoefficient * obj.body.mass * target.body.mass / squaredDistance
     );
 
     obj.body.force.x = Math.cos(angle) * force;
     obj.body.force.y = Math.sin(angle) * force;
+
+    if (shouldSpin) {
+        var angularForce = 0;
+
+        var objTopLeftToTargetX = objTopLeftX - averageTargetX;
+        var objTopLeftToTargetY = objTopLeftY - averageTargetY;
+        var objTopLeftToTargetSquaredDistance = objTopLeftToTargetX * objTopLeftToTargetX + objTopLeftToTargetY * objTopLeftToTargetY;
+
+        // Axis aligned box means the vector from center to corner is (1, 1), so the dot product divided by the distance squared is:
+        angularForce += (objTopLeftToTargetX + objTopLeftToTargetY) / objTopLeftToTargetSquaredDistance;
+
+        var objTopRightToTargetX = objTopRightX - averageTargetX;
+        var objTopRightToTargetY = objTopRightY - averageTargetY;
+        var objTopRightToTargetSquaredDistance = objTopRightToTargetX * objTopRightToTargetX + objTopRightToTargetY * objTopRightToTargetY;
+
+        angularForce += (objTopRightToTargetX + objTopRightToTargetY) / objTopRightToTargetSquaredDistance;
+
+        var objBottomLeftToTargetX = objBottomLeftX - averageTargetX;
+        var objBottomLeftToTargetY = objBottomLeftY - averageTargetY;
+        var objBottomLeftToTargetSquaredDistance = objBottomLeftToTargetX * objBottomLeftToTargetX + objBottomLeftToTargetY * objBottomLeftToTargetY;
+
+        angularForce += (objBottomLeftToTargetX + objBottomLeftToTargetY) / objBottomLeftToTargetSquaredDistance;
+
+        var objBottomRightToTargetX = objBottomRightX - averageTargetX;
+        var objBottomRightToTargetY = objBottomRightY - averageTargetY;
+        var objBottomRightToTargetSquaredDistance = objBottomRightToTargetX * objBottomRightToTargetX + objBottomRightToTargetY * objBottomRightToTargetY;
+
+        angularForce += (objBottomRightToTargetX + objBottomRightToTargetY) / objBottomRightToTargetSquaredDistance;
+
+        obj.body.angularForce = Math.min(10000, 10000 * angularForce);
+
+        console.log(obj.body.angularForce);
+    }
 }
 
 function maybeFire(player) {
