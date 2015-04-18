@@ -218,6 +218,8 @@ function addProjectile(player, fireType) {
     projectile.body.velocity.x = Math.cos(angle) * 1000;
     projectile.body.velocity.y = Math.sin(angle) * 1000;
 
+    projectile.body.damping = 0;
+
     projectile.body.setCollisionGroup(projectileCollisionGroup);
     projectile.body.collides(planetCollisionGroup);
 
