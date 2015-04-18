@@ -55,12 +55,12 @@ var mainState = {
         projectiles = game.add.group();
 
         for (var i = 0; i < 10; i++) {
-            addPlanet(game.rnd.integerInRange(300, game.world.width - 300), game.rnd.integerInRange(300, game.world.height - 300), false);
+            addPlanet(game.rnd.integerInRange(0, game.world.width), game.rnd.integerInRange(0, game.world.height), false);
         }
 
-        addPlanet(game.world.centerX, game.world.centerY, true);
+        addPlanet(game.rnd.integerInRange(0, game.world.width), game.rnd.integerInRange(0, game.world.height), true);
 
-        addPlayer(50, 50);
+        addPlayer(game.world.centerX, game.world.centerY);
     },
 
     update: function() {
