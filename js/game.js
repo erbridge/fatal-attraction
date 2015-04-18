@@ -37,6 +37,9 @@ function create() {
         var planet = planets.create(game.rnd.integerInRange(200, game.world.width - 200), game.rnd.integerInRange(200, game.world.height - 200), 'planet');
         game.physics.p2.enable(planet);
 
+        planet.body.velocity.x = game.rnd.integerInRange(-20, 20);
+        planet.body.velocity.y = game.rnd.integerInRange(-20, 20);
+
         if (currentPlanet === undefined) {
             currentPlanet = planet;
         }
