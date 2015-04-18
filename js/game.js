@@ -142,13 +142,13 @@ function addPlayer(x, y) {
 
     player.canFire = true;
 
-    var timer = game.time.create(false);
+    player.trailTimer = game.time.create(false);
 
-    timer.loop(Phaser.Timer.SECOND / 2, function() {
+    player.trailTimer.loop(Phaser.Timer.SECOND / 2, function() {
         addTrail(player);
     }, this);
 
-    timer.start();
+    player.trailTimer.start();
 }
 
 function playerHit(player, body) {
@@ -157,9 +157,11 @@ function playerHit(player, body) {
         return;
     }
 
+    player.trailTimer.destroy();
     player.kill();
 
     if (body.sprite.key === 'player') {
+        body.sprite.trailTimer.destroy();
         body.kill();
     }
 }
