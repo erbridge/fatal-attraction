@@ -14,7 +14,7 @@ var game,
 
 window.startGame = function() {
     game = new Phaser.Game(
-        window.innerWidth, window.innerHeight,
+        1024 * 16 / 9, 1024,
         Phaser.AUTO
     );
 
@@ -29,6 +29,11 @@ var mainState = {
     },
 
     create: function() {
+        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        game.scale.pageAlignHorizontally = true;
+        game.scale.pageAlignVertically = true;
+        game.scale.setScreenSize(true);
+
         controls = game.input.keyboard.createCursorKeys();
 
         game.physics.startSystem(Phaser.Physics.P2JS);
