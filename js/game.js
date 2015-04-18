@@ -237,9 +237,10 @@ function addProjectile(player, fireType) {
     projectile.body.rotation = player.body.rotation;
 
     var angle = projectile.body.rotation - Math.PI / 2;
+    var speed = 1500;
 
-    projectile.body.velocity.x = Math.cos(angle) * 1000;
-    projectile.body.velocity.y = Math.sin(angle) * 1000;
+    projectile.body.velocity.x = Math.cos(angle) * speed;
+    projectile.body.velocity.y = Math.sin(angle) * speed;
 
     projectile.body.damping = 0;
     projectile.body.angularDamping = 0;
