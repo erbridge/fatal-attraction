@@ -11,49 +11,48 @@ var game,
 window.startGame = function() {
     game = new Phaser.Game(
         window.innerWidth, window.innerHeight,
-        Phaser.AUTO,
-        '',
-        {
-            preload: preload,
-            create:  create,
-            update:  update,
-        }
+        Phaser.AUTO
     );
+
+    game.state.add('main', mainState);
+    game.state.start('main');
 };
 
-function preload() {
-    game.load.image('player', 'assets/player.png');
-    game.load.image('planet', 'assets/planet.png');
-}
+var mainState = {
+    preload: function() {
+        game.load.image('player', 'assets/player.png');
+        game.load.image('planet', 'assets/planet.png');
+    },
 
-function create() {
-    controls = game.input.keyboard.createCursorKeys();
+    create: function() {
+        controls = game.input.keyboard.createCursorKeys();
 
-    game.physics.startSystem(Phaser.Physics.P2JS);
+        game.physics.startSystem(Phaser.Physics.P2JS);
 
-    planets = game.add.group();
+        planets = game.add.group();
 
-    for (var i = 0; i < 10; i++) {
-        var planet = planets.create(game.rnd.integerInRange(200, game.world.width - 200), game.rnd.integerInRange(200, game.world.height - 200), 'planet');
-        game.physics.p2.enable(planet);
+        for (var i = 0; i < 10; i++) {
+            var planet = planets.create(game.rnd.integerInRange(200, game.world.width - 200), game.rnd.integerInRange(200, game.world.height - 200), 'planet');
+            game.physics.p2.enable(planet);
 
-        planet.body.velocity.x = game.rnd.integerInRange(-20, 20);
-        planet.body.velocity.y = game.rnd.integerInRange(-20, 20);
+            planet.body.velocity.x = game.rnd.integerInRange(-20, 20);
+            planet.body.velocity.y = game.rnd.integerInRange(-20, 20);
 
-        if (currentPlanet === undefined) {
-            currentPlanet = planet;
+            if (currentPlanet === undefined) {
+                currentPlanet = planet;
+            }
         }
-    }
 
-    players = game.add.group();
+        players = game.add.group();
 
-    var player = players.create(100, 100, 'player');
-    game.physics.p2.enable(player);
-}
+        var player = players.create(100, 100, 'player');
+        game.physics.p2.enable(player);
+    },
 
-function update() {
-    players.forEachAlive(movePlayer, this);
-    planets.forEachAlive(movePlanet, this);
+    update: function() {
+        players.forEachAlive(movePlayer, this);
+        planets.forEachAlive(movePlanet, this);
+    },
 }
 
 function movePlayer(player) {
