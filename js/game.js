@@ -32,17 +32,10 @@ var mainState = {
         planets = game.add.group();
 
         for (var i = 0; i < 10; i++) {
-            var planet = planets.create(game.rnd.integerInRange(200, game.world.width - 200), game.rnd.integerInRange(200, game.world.height - 200), 'planet');
-            game.physics.p2.enable(planet);
-
-            planet.body.velocity.x = game.rnd.integerInRange(-20, 20);
-            planet.body.velocity.y = game.rnd.integerInRange(-20, 20);
-
-            if (currentPlanet === undefined) {
-                currentPlanet = planet;
-                currentPlanet.tint = 0xb5bd68;
-            }
+            addPlanet(game.rnd.integerInRange(200, game.world.width - 200), game.rnd.integerInRange(200, game.world.height - 200), false);
         }
+
+        addPlanet(game.world.width / 2, game.world.height / 2, true);
 
         players = game.add.group();
 
@@ -60,6 +53,32 @@ var mainState = {
     },
 }
 
+function addPlanet(x, y, isCurrent) {
+    var planet = planets.create(x, y, 'planet');
+    game.physics.p2.enable(planet);
+
+    planet.body.velocity.x = game.rnd.integerInRange(-20, 20);
+    planet.body.velocity.y = game.rnd.integerInRange(-20, 20);
+
+    planet.body.mass = 100;
+
+    if (isCurrent) {
+        setCurrentPlanet(planet);
+    }
+}
+
+function setCurrentPlanet(planet) {
+    if (currentPlanet !== undefined) {
+        currentPlanet.tint = 0x8abeb7;
+        currentPlanet.body.mass = 100;
+    }
+
+    planet.tint = 0xb5bd68;
+    planet.body.mass = 10000;
+
+    currentPlanet = planet;
+}
+
 function playerHit(player, body) {
     // FIXME: This is if they hit a wall.
     if (body === null) {
@@ -73,9 +92,8 @@ function playerHit(player, body) {
     }
 }
 
-
 function movePlayer(player) {
-    move(player, 15);
+    move(player, 10);
 
     if (controls.left.isDown) {
         player.body.rotateLeft(100);
@@ -91,17 +109,22 @@ function movePlanet(planet) {
         return;
     }
 
-    move(planet, 5);
+    move(planet, 1);
 }
 
-function move(obj, speed) {
-    accelerateToObject(obj, currentPlanet, speed);
+function move(obj, forceCoefficient) {
+    accelerateToObject(obj, currentPlanet, forceCoefficient);
 }
 
-function accelerateToObject(obj, target, speed, shouldRotate) {
-    var angle = Math.atan2(target.y - obj.y, target.x - obj.x);
-    obj.body.force.x = Math.cos(angle) * speed;
-    obj.body.force.y = Math.sin(angle) * speed;
+function accelerateToObject(obj, target, forceCoefficient) {
+    var x = target.x - obj.x;
+    var y = target.y - obj.y;
+
+    var force = forceCoefficient * 100 * obj.body.mass * target.body.mass / (x * x + y * y);
+    var angle = Math.atan2(y, x);
+
+    obj.body.force.x = Math.cos(angle) * force;
+    obj.body.force.y = Math.sin(angle) * force;
 }
 
 })();
