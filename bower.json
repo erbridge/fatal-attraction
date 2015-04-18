@@ -1,0 +1,7 @@
+{
+  "name": "fatal-attraction",
+  "private": true,
+  "dependencies": {
+    "phaser": "~2.3.0"
+  }
+}
