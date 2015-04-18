@@ -5,11 +5,12 @@
 var game,
     planetCollisionGroup,
     playerCollisionGroup,
+    projectileCollisionGroup,
     controls,
     planets,
     currentPlanet,
     players,
-    controls,
+    projectiles,
     gravityDirection;
 
 window.startGame = function() {
@@ -24,8 +25,9 @@ window.startGame = function() {
 
 var mainState = {
     preload: function() {
-        game.load.image('player', 'assets/player.png');
-        game.load.image('planet', 'assets/planet.png');
+        game.load.image('player',     'assets/player.png');
+        game.load.image('planet',     'assets/planet.png');
+        game.load.image('projectile', 'assets/projectile.png');
     },
 
     create: function() {
@@ -38,15 +40,16 @@ var mainState = {
 
         game.physics.startSystem(Phaser.Physics.P2JS);
 
-        playerCollisionGroup = game.physics.p2.createCollisionGroup();
-        planetCollisionGroup = game.physics.p2.createCollisionGroup();
+        playerCollisionGroup     = game.physics.p2.createCollisionGroup();
+        planetCollisionGroup     = game.physics.p2.createCollisionGroup();
+        projectileCollisionGroup = game.physics.p2.createCollisionGroup();
 
         // Make things collide with the bounds.
         game.physics.p2.updateBoundsCollisionGroup();
 
-        gravityDirection = 1;
-
-        planets = game.add.group();
+        players     = game.add.group();
+        planets     = game.add.group();
+        projectiles = game.add.group();
 
         for (var i = 0; i < 10; i++) {
             addPlanet(game.rnd.integerInRange(200, game.world.width - 200), game.rnd.integerInRange(200, game.world.height - 200), false);
@@ -54,31 +57,14 @@ var mainState = {
 
         addPlanet(game.world.width / 2, game.world.height / 2, true);
 
-        players = game.add.group();
-
-        var player = players.create(50, 50, 'player');
-        game.physics.p2.enable(player);
-
-        player.anchor = new Phaser.Point(0.5, 0.5);
-        player.body.rotation = Math.PI * 3 / 4;
-
-        player.body.setCollisionGroup(playerCollisionGroup);
-        player.body.collides(planetCollisionGroup);
-
-        player.body.onBeginContact.add(function(body) {
-            playerHit(player, body);
-        }, this);
+        addPlayer(50, 50);
     },
 
     update: function() {
         players.forEachAlive(movePlayer, this);
         planets.forEachAlive(movePlanet, this);
 
-        if (controls.up.isDown) {
-            gravityDirection = 1;
-        } else if (controls.down.isDown) {
-            gravityDirection = -1;
-        }
+        players.forEachAlive(maybeFire, this);
     },
 }
 
@@ -97,22 +83,52 @@ function addPlanet(x, y, isCurrent) {
 
     planet.body.setCollisionGroup(planetCollisionGroup);
     planet.body.collides(playerCollisionGroup);
+    planet.body.collides(projectileCollisionGroup);
 
     if (isCurrent) {
         setCurrentPlanet(planet);
     }
 }
 
-function setCurrentPlanet(planet) {
+function setCurrentPlanet(planet, gravityDirectionToSet) {
+    if (gravityDirectionToSet === undefined) {
+        gravityDirectionToSet = 1;
+    }
+
     if (currentPlanet !== undefined) {
         currentPlanet.tint = 0x8abeb7;
         currentPlanet.body.mass = 100;
     }
 
-    planet.tint = 0xb5bd68;
+    if (gravityDirectionToSet === 1) {
+        planet.tint = 0xb5bd68;
+    } else {
+        planet.tint = 0xb294bb;
+    }
+
     planet.body.mass = 10000;
 
     currentPlanet = planet;
+
+    gravityDirection = gravityDirectionToSet;
+}
+
+function addPlayer(x, y) {
+    var player = players.create(x, y, 'player');
+    game.physics.p2.enable(player);
+
+    player.anchor = new Phaser.Point(0.5, 0.5);
+    player.body.rotation = Math.PI * 3 / 4;
+
+    player.body.setCollisionGroup(playerCollisionGroup);
+    player.body.collides(playerCollisionGroup);
+    player.body.collides(planetCollisionGroup);
+
+    player.body.onBeginContact.add(function(body) {
+        playerHit(player, body);
+    }, this);
+
+    player.canFire = true;
 }
 
 function playerHit(player, body) {
@@ -177,6 +193,65 @@ function accelerateToObject(obj, target, forceCoefficient) {
 
     obj.body.force.x = Math.cos(angle) * force;
     obj.body.force.y = Math.sin(angle) * force;
+}
+
+function maybeFire(player) {
+    var fireType;
+    if (controls.up.isDown) {
+        fireType = 1;
+    } else if (controls.down.isDown) {
+        fireType = -1;
+    } else {
+        return;
+    }
+
+    addProjectile(player, fireType);
+}
+
+function addProjectile(player, fireType) {
+    if (!player.canFire) {
+        return;
+    }
+
+    var projectile = projectiles.create(player.x, player.y, 'projectile');
+    game.physics.p2.enable(projectile);
+
+    projectile.anchor = new Phaser.Point(0.5, 0.5);
+
+    projectile.body.rotation = player.body.rotation;
+
+    var angle = projectile.body.rotation - Math.PI / 2;
+
+    projectile.body.velocity.x = Math.cos(angle) * 1000;
+    projectile.body.velocity.y = Math.sin(angle) * 1000;
+
+    projectile.body.setCollisionGroup(projectileCollisionGroup);
+    projectile.body.collides(planetCollisionGroup);
+
+    projectile.body.onBeginContact.add(function(body) {
+        projectileHit(player, projectile, body);
+    }, this);
+
+    projectile.fireType = fireType;
+
+    game.time.events.add(Phaser.Timer.SECOND / 5, function() {
+        player.canFire = true;
+    }, this);
+
+    player.canFire = false;
+}
+
+function projectileHit(player, projectile, body) {
+    projectile.kill();
+
+    player.hasProjectile = false;
+
+    // FIXME: This is if it hit a wall.
+    if (body === null) {
+        return;
+    }
+
+    setCurrentPlanet(body.sprite, projectile.fireType);
 }
 
 })();
