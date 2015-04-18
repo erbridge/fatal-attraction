@@ -163,7 +163,7 @@ function movePlayer(player) {
 
     player.body.angularForce += sign * 30;
 
-    move(player, 10, false);
+    move(player, 5, false);
 }
 
 function movePlanet(planet) {
