@@ -7,7 +7,9 @@ var game,
     playerCollisionGroup,
     projectileCollisionGroup,
     controls,
-    // trails,
+    trails,
+    trailTexture,
+    trailImage,
     planets,
     currentPlanet,
     players,
@@ -26,7 +28,7 @@ window.startGame = function() {
 
 var mainState = {
     preload: function() {
-        // game.load.image('trail',      'assets/trail.png');
+        game.load.image('trail',      'assets/trail.png');
         game.load.image('player',     'assets/player.png');
         game.load.image('planet',     'assets/planet.png');
         game.load.image('projectile', 'assets/projectile.png');
@@ -40,6 +42,9 @@ var mainState = {
 
         controls = game.input.keyboard.createCursorKeys();
 
+        trailImage = game.make.image(0, 0, 'trail');
+        trailImage.anchor.set(0.5);
+
         game.physics.startSystem(Phaser.Physics.P2JS);
 
         playerCollisionGroup     = game.physics.p2.createCollisionGroup();
@@ -49,7 +54,7 @@ var mainState = {
         // Make things collide with the bounds.
         // game.physics.p2.updateBoundsCollisionGroup();
 
-        // trails      = game.add.group();
+        trails      = game.add.group();
         players     = game.add.group();
         planets     = game.add.group();
         projectiles = game.add.group();
@@ -90,7 +95,7 @@ function lerpWorldCenterTowardsCurrentPlanet() {
 }
 
 function lerpWorldCenterTowardsPlayer(player) {
-    lerpWorldCenterTowardsXY(player.body.x, player.body.y, 100);
+    lerpWorldCenterTowardsXY(player.body.x, player.body.y, 50);
 }
 
 function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
@@ -102,7 +107,6 @@ function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
         obj.body.y += y;
     }
 
-    // trails.forEachAlive(lerp, this);
     players.forEachAlive(lerp, this);
     planets.forEachAlive(lerp, this);
     projectiles.forEachAlive(lerp, this);
@@ -112,7 +116,7 @@ function addPlanet(x, y, isCurrent) {
     var planet = planets.create(x, y, 'planet');
     game.physics.p2.enable(planet);
 
-    planet.anchor = new Phaser.Point(0.5, 0.5);
+    planet.anchor.set(0.5);
 
     planet.body.velocity.x = game.rnd.integerInRange(-100, 100);
     planet.body.velocity.y = game.rnd.integerInRange(-100, 100);
@@ -159,7 +163,7 @@ function addPlayer(x, y) {
     var player = players.create(x, y, 'player');
     game.physics.p2.enable(player);
 
-    player.anchor = new Phaser.Point(0.5, 0.5);
+    player.anchor.set(0.5);
     player.body.rotation = Math.PI * 3 / 4;
 
     player.body.damping = 0;
@@ -175,13 +179,19 @@ function addPlayer(x, y) {
 
     player.canFire = true;
 
-    // player.trailTimer = game.time.create(false);
+    // FIXME: This should display the actual trajectory of the player, not their movement in camera space.
+    player.trailTexture = game.add.renderTexture(game.world.width, game.world.height, 'trailTexture');
 
-    // player.trailTimer.loop(Phaser.Timer.SECOND / 4, function() {
-    //     addTrail(player);
-    // }, this);
+    player.trail = trails.create(game.world.centerX, game.world.centerY, player.trailTexture);
+    player.trail.anchor.set(0.5);
 
-    // player.trailTimer.start();
+    player.trailTimer = game.time.create(false);
+
+    player.trailTimer.loop(Phaser.Timer.SECOND / 4, function() {
+        addToTrail(player);
+    }, this);
+
+    player.trailTimer.start();
 }
 
 function playerHit(player, body) {
@@ -190,11 +200,11 @@ function playerHit(player, body) {
         return;
     }
 
-    // player.trailTimer.destroy();
+    player.trailTimer.destroy();
     player.kill();
 
     if (body.sprite.key === 'player') {
-        // body.sprite.trailTimer.destroy();
+        body.sprite.trailTimer.destroy();
         body.kill();
     }
 }
@@ -319,10 +329,9 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
     }
 }
 
-// function addTrail(player) {
-//     var trail = trails.create(player.x, player.y, 'trail');
-//     trail.anchor = new Phaser.Point(0.5, 0.5);
-// }
+function addToTrail(player) {
+    player.trailTexture.render(trailImage, player.position, false);
+}
 
 function maybeFire(player) {
     var fireType;
@@ -345,7 +354,7 @@ function addProjectile(player, fireType) {
     var projectile = projectiles.create(player.x, player.y, 'projectile');
     game.physics.p2.enable(projectile);
 
-    projectile.anchor = new Phaser.Point(0.5, 0.5);
+    projectile.anchor.set(0.5);
 
     projectile.body.rotation = player.body.rotation;
 
