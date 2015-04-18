@@ -7,6 +7,7 @@ var game,
     playerCollisionGroup,
     projectileCollisionGroup,
     controls,
+    trails,
     planets,
     currentPlanet,
     players,
@@ -25,6 +26,7 @@ window.startGame = function() {
 
 var mainState = {
     preload: function() {
+        game.load.image('trail',      'assets/trail.png');
         game.load.image('player',     'assets/player.png');
         game.load.image('planet',     'assets/planet.png');
         game.load.image('projectile', 'assets/projectile.png');
@@ -47,6 +49,7 @@ var mainState = {
         // Make things collide with the bounds.
         // game.physics.p2.updateBoundsCollisionGroup();
 
+        trails      = game.add.group();
         players     = game.add.group();
         planets     = game.add.group();
         projectiles = game.add.group();
@@ -138,6 +141,14 @@ function addPlayer(x, y) {
     }, this);
 
     player.canFire = true;
+
+    var timer = game.time.create(false);
+
+    timer.loop(Phaser.Timer.SECOND / 2, function() {
+        addTrail(player);
+    }, this);
+
+    timer.start();
 }
 
 function playerHit(player, body) {
@@ -273,6 +284,10 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
 
         console.log(obj.body.angularForce);
     }
+}
+
+function addTrail(player) {
+    var trail = trails.create(player.x, player.y, 'trail');
 }
 
 function maybeFire(player) {
