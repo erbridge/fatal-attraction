@@ -63,9 +63,6 @@ function addPlanet(x, y, isCurrent) {
     planet.body.mass = 100;
 
     if (isCurrent) {
-        planet.body.velocity.x = 0;
-        planet.body.velocity.y = 0;
-
         setCurrentPlanet(planet);
     }
 }
