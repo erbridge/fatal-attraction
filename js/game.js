@@ -223,6 +223,8 @@ function addPlayer(x, y) {
     game.physics.p2.enable(player);
 
     player.anchor.set(0.5);
+    player.tint = colours.red;
+
     player.body.rotation = game.rnd.realInRange(0, 2 * Math.PI);
 
     player.body.damping = 0;
@@ -446,6 +448,7 @@ function addProjectile(player, fireType) {
     game.physics.p2.enable(projectile);
 
     projectile.anchor.set(0.5);
+    projectile.tint = colours.yellow;
 
     projectile.body.rotation = player.body.rotation;
 
