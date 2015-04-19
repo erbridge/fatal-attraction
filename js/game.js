@@ -16,6 +16,17 @@ var game,
     projectiles,
     gravityDirection;
 
+var colours = {
+    red:    0xcc6666,
+    orange: 0xde935f,
+    yellow: 0xf0c674,
+    green:  0xb5bd68,
+    aqua:   0x8abeb7,
+    blue:   0x81a2be,
+    purple: 0xb294bb,
+    brown:  0xa3685a,
+}
+
 window.startGame = function() {
     game = new Phaser.Game(
         1024 * 16 / 9, 1024,
@@ -122,6 +133,7 @@ function addPlanet(x, y, isCurrent) {
     game.physics.p2.enable(planet);
 
     planet.anchor.set(0.5);
+    planet.tint = colours.aqua;
 
     planet.body.velocity.x = game.rnd.integerInRange(-100, 100);
     planet.body.velocity.y = game.rnd.integerInRange(-100, 100);
@@ -147,14 +159,14 @@ function setCurrentPlanet(planet, gravityDirectionToSet) {
     }
 
     if (currentPlanet !== undefined) {
-        currentPlanet.tint = 0x8abeb7;
+        currentPlanet.tint = colours.aqua;
         currentPlanet.body.mass = 100;
     }
 
     if (gravityDirectionToSet === 1) {
-        planet.tint = 0xb5bd68;
+        planet.tint = colours.green;
     } else {
-        planet.tint = 0xb294bb;
+        planet.tint = colours.purple;
     }
 
     planet.body.mass = 1000000;
