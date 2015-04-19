@@ -476,13 +476,15 @@ function addProjectile(player, fireType) {
         player.canFire = true;
     }, this);
 
+    game.time.events.add(Phaser.Timer.SECOND * 2, function() {
+        killProjectile(player, projectile);
+    }, this);
+
     player.canFire = false;
 }
 
 function projectileHit(player, projectile, body) {
-    projectile.kill();
-
-    player.hasProjectile = false;
+    killProjectile(player, projectile)
 
     // FIXME: This is if it hit a wall.
     if (body === null) {
@@ -490,6 +492,12 @@ function projectileHit(player, projectile, body) {
     }
 
     setCurrentPlanet(body.sprite, projectile.fireType);
+}
+
+function killProjectile(player, projectile) {
+    projectile.kill();
+
+    player.hasProjectile = false;
 }
 
 function maybeWrap(obj) {
