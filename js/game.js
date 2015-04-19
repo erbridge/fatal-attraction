@@ -232,10 +232,11 @@ var mainState = {
         setupPhysics();
 
         addBackground();
-        addPlayers(1);
-        addPlanets(11);
 
         setupProjectiles();
+
+        addPlayers(1);
+        addPlanets(11);
 
         players.forEachAlive(addScoreTimer, this);
         players.forEachAlive(addSpeedDisplay, this);
