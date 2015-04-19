@@ -268,7 +268,7 @@ function playerHit(player, body) {
     killPlayer(player);
 
     if (body.sprite.key === 'player') {
-        killP(body.sprite);
+        killPlayer(body.sprite);
     }
 }
 
