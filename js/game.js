@@ -90,11 +90,11 @@ var mainState = {
 
         players.forEachAlive(maybeFire, this);
 
-        if (players.countLiving() === 1) {
-            lerpWorldCenterTowardsPlayer(players.getFirstAlive());
-        } else {
-            lerpWorldCenterTowardsCurrentPlanet();
-        }
+        // if (players.countLiving() === 1) {
+        //     lerpWorldCenterTowardsPlayer(players.getFirstAlive());
+        // } else {
+        //     lerpWorldCenterTowardsCurrentPlanet();
+        // }
 
         players.forEachAlive(maybeWrap, this);
         planets.forEachAlive(maybeWrap, this);
