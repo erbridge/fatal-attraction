@@ -133,7 +133,7 @@ function lerpWorldCenterTowardsCurrentPlanet() {
 }
 
 function lerpWorldCenterTowardsPlayer(player) {
-    lerpWorldCenterTowardsXY(player.body.x, player.body.y, 50);
+    lerpWorldCenterTowardsXY(player.body.x, player.body.y, 30);
 }
 
 function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
