@@ -291,15 +291,17 @@ function playerHit(player, body) {
         return;
     }
 
+    killPlayer(player);
+
+    if (body.sprite.key === 'player') {
+        killP(body.sprite);
+    }
+}
+
+function killPlayer(player) {
     player.trailTimer.destroy();
     player.timer.destroy();
     player.kill();
-
-    if (body.sprite.key === 'player') {
-        body.sprite.trailTimer.destroy();
-        body.sprite.timer.destroy();
-        body.kill();
-    }
 }
 
 function movePlayer(player) {
