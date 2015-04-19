@@ -82,15 +82,27 @@ var mainState = {
 
         addPlayer(game.world.centerX, game.world.centerY);
 
+        var minX = 500;
+        var minY = 500;
+        var maxX = game.world.width - 500;
+        var maxY = game.world.height - 500;
+
         for (var i = 0; i < 11; i++) {
-            var x = game.rnd.integerInRange(0, game.world.width);
-            var y = game.rnd.integerInRange(0, game.world.height);
+            var x = game.rnd.integerInRange(minX, maxX);
+            var y = game.rnd.integerInRange(minY, maxY);
             while (Math.abs(game.world.centerX - x) < 300 && Math.abs(game.world.centerY - y) < 300) {
-                x = game.rnd.integerInRange(0, game.world.width);
-                y = game.rnd.integerInRange(0, game.world.height);
+                x = game.rnd.integerInRange(minX, maxX);
+                y = game.rnd.integerInRange(minY, maxY);
             }
 
             addPlanet(x, y, i === 0);
+
+            if (i === 0) {
+                minX = 0;
+                minY = 0;
+                maxX = game.world.width;
+                maxY = game.world.height;
+            }
         }
     },
 
