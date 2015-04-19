@@ -157,7 +157,7 @@ function addPlanet(x, y, isCurrent) {
     planet.body.velocity.x = game.rnd.integerInRange(-100, 100);
     planet.body.velocity.y = game.rnd.integerInRange(-100, 100);
 
-    planet.body.rotateRight(game.rnd.integerInRange(-20, 20));
+    planet.body.rotateRight(game.rnd.realInRange(-20, 20));
 
     planet.body.mass    = 1000;
     planet.body.damping = 0;
@@ -200,7 +200,7 @@ function addPlayer(x, y) {
     game.physics.p2.enable(player);
 
     player.anchor.set(0.5);
-    player.body.rotation = Math.PI * 3 / 4;
+    player.body.rotation = game.rnd.realInRange(0, 2 * Math.PI);
 
     player.body.damping = 0;
     player.body.angularDamping = 0.99;
