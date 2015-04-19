@@ -221,6 +221,8 @@ var mainState = {
         game.load.image('player',            'assets/player.png');
         game.load.image('planet',            'assets/planet.png');
         game.load.image('projectile',        'assets/projectile.png');
+
+        game.load.physics('physics-data',    'assets/physics.json');
     },
 
     create: function() {
@@ -478,6 +480,9 @@ function setCurrentPlanet(planet, gravityDirectionToSet, playSfx) {
 function addPlayer(x, y) {
     var player = players.create(x, y, 'player');
     game.physics.p2.enable(player);
+
+    player.body.clearShapes();
+    player.body.loadPolygon('physics-data', 'player');
 
     player.anchor.set(0.5);
     player.tint = colours.red;
