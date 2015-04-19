@@ -8,6 +8,8 @@ var game,
     projectileCollisionGroup,
     controls,
     background,
+    midground,
+    foreground,
     trails,
     trailTexture,
     trailImage,
@@ -41,6 +43,8 @@ window.startGame = function() {
 var mainState = {
     preload: function() {
         game.load.image('background', 'assets/background.png');
+        game.load.image('midground',  'assets/midground.png');
+        game.load.image('foreground', 'assets/foreground.png');
         game.load.image('trail',      'assets/trail.png');
         game.load.image('player',     'assets/player.png');
         game.load.image('planet',     'assets/planet.png');
@@ -68,6 +72,8 @@ var mainState = {
         // game.physics.p2.updateBoundsCollisionGroup();
 
         background = game.add.tileSprite(0, 0, 1820, 1024, 'background');
+        midground  = game.add.tileSprite(0, 0, 1820, 1024, 'midground');
+        foreground = game.add.tileSprite(0, 0, 1820, 1024, 'foreground');
 
         trails      = game.add.group();
         players     = game.add.group();
@@ -122,8 +128,14 @@ function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
     var x = (game.world.centerX - targetX) / lerpFactor;
     var y = (game.world.centerY - targetY) / lerpFactor;
 
-    background.tilePosition.x += x;
-    background.tilePosition.y += y;
+    background.tilePosition.x += x * 1.3;
+    background.tilePosition.y += y * 1.3;
+
+    midground.tilePosition.x += x * 1.2;
+    midground.tilePosition.y += y * 1.2;
+
+    foreground.tilePosition.x += x;
+    foreground.tilePosition.y += y;
 
     function lerp(obj) {
         obj.body.x += x;
