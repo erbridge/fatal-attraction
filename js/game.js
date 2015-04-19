@@ -236,7 +236,8 @@ var mainState = {
 
         setupProjectiles();
 
-        players.forEachAlive(addTimer, this);
+        players.forEachAlive(addScoreTimer, this);
+        players.forEachAlive(addSpeedDisplay, this);
 
         playTimer = game.time.create(false);
         playTimer.start();
@@ -500,10 +501,12 @@ function addPlayer(x, y) {
         playerHit(player, body);
     }, this);
 
+    player.topSpeed = 0;
+
     player.canFire = true;
 }
 
-function addTimer(player) {
+function addScoreTimer(player) {
     var pad = '0000000';
 
     player.timerDisplay = game.add.text(20, 20, pad);
@@ -516,6 +519,16 @@ function addTimer(player) {
 
     player.timerDisplay.strokeThickness = 3;
 
+    player.timerLabelDisplay = game.add.text(20, 100, 'time');
+
+    player.timerLabelDisplay.font = 'Press Start 2P';
+    player.timerLabelDisplay.fontSize = 20;
+
+    player.timerLabelDisplay.fill   = '#' + colours.red.toString(16);
+    player.timerLabelDisplay.stroke = '#' + colours.black.toString(16);
+
+    player.timerLabelDisplay.strokeThickness = 3;
+
     player.timer = game.time.create(false);
 
     player.timer.loop(1, function() {
@@ -525,6 +538,38 @@ function addTimer(player) {
     }, this);
 
     player.timer.start();
+}
+
+function addSpeedDisplay(player) {
+    player.topSpeedDisplay = game.add.text(game.world.width - 20, 20, '');
+    player.topSpeedDisplay.anchor.set(1, 0);
+
+    player.topSpeedDisplay.font = 'Press Start 2P';
+    player.topSpeedDisplay.fontSize = 60;
+
+    player.topSpeedDisplay.fill   = '#' + colours.yellow.toString(16);
+    player.topSpeedDisplay.stroke = '#' + colours.black.toString(16);
+
+    player.topSpeedDisplay.strokeThickness = 3;
+
+    player.topSpeedLabelDisplay = game.add.text(game.world.width - 20, 100, 'top speed');
+    player.topSpeedLabelDisplay.anchor.set(1, 0);
+
+    player.topSpeedLabelDisplay.font = 'Press Start 2P';
+    player.topSpeedLabelDisplay.fontSize = 20;
+
+    player.topSpeedLabelDisplay.fill   = '#' + colours.yellow.toString(16);
+    player.topSpeedLabelDisplay.stroke = '#' + colours.black.toString(16);
+
+    player.topSpeedLabelDisplay.strokeThickness = 3;
+
+    setSpeedDisplay(player);
+}
+
+function setSpeedDisplay(player) {
+    var pad = '0000000';
+    var text = (pad + parseInt(player.topSpeed)).slice(-pad.length);
+    player.topSpeedDisplay.setText(text);
 }
 
 function playerHit(player, body) {
@@ -562,6 +607,12 @@ function movePlayer(player) {
     player.body.angularForce += sign * 60;
 
     move(player, 5, false);
+
+    var speed = Math.sqrt(Math.pow(player.body.velocity.x, 2) +  Math.pow(player.body.velocity.y, 2));
+    if (speed > player.topSpeed) {
+        player.topSpeed = speed;
+        setSpeedDisplay(player);
+    }
 }
 
 function movePlanet(planet) {
@@ -637,7 +688,7 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
     var angle = Math.atan2(y, x);
 
     var force = Math.min(
-        20000000,
+        15000000,
         gravityDirection * difficultyFactor * forceCoefficient * obj.body.mass * target.body.mass / squaredDistance
     );
 
