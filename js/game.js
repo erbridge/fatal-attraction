@@ -20,6 +20,8 @@ var game,
     screenShake,
     flashTextTimer,
     playTimer,
+    timeRecord     = parseInt(localStorage.getItem('fatal-attraction-time-record')) || 0,
+    topSpeedRecord = parseInt(localStorage.getItem('fatal-attraction-top-speed-record')) || 0,
     isGameOver;
 
 function shutdown() {
@@ -238,7 +240,7 @@ var mainState = {
         addPlayers(1);
         addPlanets(11);
 
-        players.forEachAlive(addScoreTimer, this);
+        players.forEachAlive(addTimer, this);
         players.forEachAlive(addSpeedDisplay, this);
 
         playTimer = game.time.create(false);
@@ -276,6 +278,8 @@ var mainState = {
 
 function doGameOver() {
     playTimer.stop();
+
+    saveRecords();
 
     game.time.events.add(Phaser.Timer.SECOND * 2, function() {
         isGameOver = true;
@@ -516,53 +520,96 @@ function addPlayer(x, y) {
     player.canFire = true;
 }
 
-function addScoreTimer(player) {
+function addTimer(player) {
     var pad = '0000000';
 
-    player.timerDisplay = game.add.text(20, 20, pad);
+    player.timeRecordDisplay = game.add.text(20, 20, '');
 
-    player.timerDisplay.font = 'Press Start 2P';
-    player.timerDisplay.fontSize = 60;
+    player.timeRecordDisplay.font = 'Press Start 2P';
+    player.timeRecordDisplay.fontSize = 50;
 
-    player.timerDisplay.fill   = '#' + colours.red.toString(16);
-    player.timerDisplay.stroke = '#' + colours.black.toString(16);
+    player.timeRecordDisplay.fill   = '#' + colours.red.toString(16);
+    player.timeRecordDisplay.stroke = '#' + colours.black.toString(16);
 
-    player.timerDisplay.strokeThickness = 3;
+    player.timeRecordDisplay.strokeThickness = 3;
 
-    player.timerLabelDisplay = game.add.text(20, 100, 'time');
+    player.timeDisplay = game.add.text(20, 90, '');
 
-    player.timerLabelDisplay.font = 'Press Start 2P';
-    player.timerLabelDisplay.fontSize = 20;
+    player.timeDisplay.font = 'Press Start 2P';
+    player.timeDisplay.fontSize = 50;
 
-    player.timerLabelDisplay.fill   = '#' + colours.red.toString(16);
-    player.timerLabelDisplay.stroke = '#' + colours.black.toString(16);
+    player.timeDisplay.fill   = '#' + colours.red.toString(16);
+    player.timeDisplay.stroke = '#' + colours.black.toString(16);
 
-    player.timerLabelDisplay.strokeThickness = 3;
+    player.timeDisplay.strokeThickness = 3;
+
+    player.timeLabelDisplay = game.add.text(20, 160, 'time');
+
+    player.timeLabelDisplay.font = 'Press Start 2P';
+    player.timeLabelDisplay.fontSize = 20;
+
+    player.timeLabelDisplay.fill   = '#' + colours.red.toString(16);
+    player.timeLabelDisplay.stroke = '#' + colours.black.toString(16);
+
+    player.timeLabelDisplay.strokeThickness = 3;
 
     player.timer = game.time.create(false);
 
     player.timer.loop(1, function() {
-        var ms = player.timer.ms;
-        var text = (pad + ms).slice(-pad.length);
-        player.timerDisplay.setText(text);
+        setTimeDisplay(player);
     }, this);
+
+    setTimeDisplay(player);
+    setTimeRecordDisplay(player);
 
     player.timer.start();
 }
 
+function setTimeDisplay(player) {
+    var pad = '0000000';
+
+    var ms = player.timer.ms;
+    var text = (pad + ms).slice(-pad.length);
+    player.timeDisplay.setText(text);
+
+    if (ms > timeRecord) {
+        timeRecord = ms;
+
+        setTimeRecordDisplay(player);
+    }
+}
+
+function setTimeRecordDisplay(player) {
+    var pad = '0000000';
+
+    var text = (pad + timeRecord).slice(-pad.length);
+    player.timeRecordDisplay.setText(text);
+}
+
 function addSpeedDisplay(player) {
-    player.topSpeedDisplay = game.add.text(game.world.width - 20, 20, '');
+    player.topSpeedRecordDisplay = game.add.text(game.world.width - 20, 20, '');
+    player.topSpeedRecordDisplay.anchor.set(1, 0);
+
+    player.topSpeedRecordDisplay.font = 'Press Start 2P';
+    player.topSpeedRecordDisplay.fontSize = 50;
+
+    player.topSpeedRecordDisplay.fill   = '#' + colours.yellow.toString(16);
+    player.topSpeedRecordDisplay.stroke = '#' + colours.black.toString(16);
+
+    player.topSpeedRecordDisplay.strokeThickness = 3;
+
+    player.topSpeedDisplay = game.add.text(game.world.width - 20, 90, '');
     player.topSpeedDisplay.anchor.set(1, 0);
 
     player.topSpeedDisplay.font = 'Press Start 2P';
-    player.topSpeedDisplay.fontSize = 60;
+    player.topSpeedDisplay.fontSize = 50;
 
     player.topSpeedDisplay.fill   = '#' + colours.yellow.toString(16);
     player.topSpeedDisplay.stroke = '#' + colours.black.toString(16);
 
     player.topSpeedDisplay.strokeThickness = 3;
 
-    player.topSpeedLabelDisplay = game.add.text(game.world.width - 20, 100, 'top speed');
+    player.topSpeedLabelDisplay = game.add.text(game.world.width - 20, 160, 'top speed');
     player.topSpeedLabelDisplay.anchor.set(1, 0);
 
     player.topSpeedLabelDisplay.font = 'Press Start 2P';
@@ -574,12 +621,33 @@ function addSpeedDisplay(player) {
     player.topSpeedLabelDisplay.strokeThickness = 3;
 
     setSpeedDisplay(player);
+    setSpeedRecordDisplay(player);
 }
 
 function setSpeedDisplay(player) {
     var pad = '0000000';
-    var text = (pad + parseInt(player.topSpeed)).slice(-pad.length);
+
+    var speed = parseInt(player.topSpeed);
+    var text = (pad + speed).slice(-pad.length);
     player.topSpeedDisplay.setText(text);
+
+    if (speed > topSpeedRecord) {
+        topSpeedRecord = speed;
+
+        setSpeedRecordDisplay(player);
+    }
+}
+
+function setSpeedRecordDisplay(player) {
+    var pad = '0000000';
+
+    var text = (pad + topSpeedRecord).slice(-pad.length);
+    player.topSpeedRecordDisplay.setText(text);
+}
+
+function saveRecords() {
+    localStorage.setItem('fatal-attraction-time-record', timeRecord);
+    localStorage.setItem('fatal-attraction-top-speed-record', topSpeedRecord);
 }
 
 function playerHit(player, body) {
