@@ -9,3 +9,4 @@ This is a game I made for Ludum Dare 32. The theme was **An Unconventional Weapo
 - [Chromium](https://www.chromium.org/) - Browser
 - [GIMP](http://www.gimp.org/) - Art
 - [Chiptone](http://sfbgames.com/chiptone/) - Audio
+- [SunVox](http://www.warmplace.ru/soft/sunvox/) - Audio
