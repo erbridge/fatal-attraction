@@ -199,6 +199,8 @@ var mainState = {
     preload: function() {
         game.load.script('webfont',   '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
 
+        game.load.audio('shoot-sfx',  'assets/shoot.wav');
+
         game.load.image('background', 'assets/background.png');
         game.load.image('midground',  'assets/midground.png');
         game.load.image('foreground', 'assets/foreground.png');
@@ -216,7 +218,7 @@ var mainState = {
         addPlayers(1);
         addPlanets(11);
 
-        projectiles = game.add.group();
+        setupProjectiles();
 
         players.forEachAlive(addTimer, this);
     },
@@ -332,6 +334,12 @@ function addPlanets(count) {
             maxY = game.world.height;
         }
     }
+}
+
+function setupProjectiles() {
+    projectiles = game.add.group();
+
+    projectiles.shootSfx = game.add.audio('shoot-sfx');
 }
 
 function lerpWorldCenterTowardsCurrentPlanet() {
@@ -663,6 +671,8 @@ function addProjectile(player, fireType) {
     }, this);
 
     player.canFire = false;
+
+    projectiles.shootSfx.play();
 }
 
 function projectileHit(player, projectile, body) {
