@@ -161,7 +161,7 @@ var startState = {
 
         flashTextTimer.start();
 
-        var discordSfx = game.add.audio('discord-sfx', 0.7);
+        var discordSfx = game.add.audio('discord-sfx', 0.3);
         discordSfx.loopFull();
     },
 
@@ -340,7 +340,7 @@ function addPlayers(count) {
 
     players = game.add.group();
 
-    players.boomSfx = game.add.audio('boom-sfx');
+    players.boomSfx = game.add.audio('boom-sfx', 0.5);
 
     addPlayer(game.world.centerX, game.world.centerY);
 }
@@ -348,8 +348,8 @@ function addPlayers(count) {
 function addPlanets(count) {
     planets = game.add.group();
 
-    planets.attractorHitSfx = game.add.audio('attractor-hit-sfx');
-    planets.repulsorHitSfx  = game.add.audio('repulsor-hit-sfx');
+    planets.attractorHitSfx = game.add.audio('attractor-hit-sfx', 0.5);
+    planets.repulsorHitSfx  = game.add.audio('repulsor-hit-sfx', 0.5);
 
     var minX = 500;
     var minY = 500;
@@ -378,7 +378,7 @@ function addPlanets(count) {
 function setupProjectiles() {
     projectiles = game.add.group();
 
-    projectiles.shootSfx = game.add.audio('shoot-sfx');
+    projectiles.shootSfx = game.add.audio('shoot-sfx', 0.5);
 }
 
 function lerpWorldCenterTowardsCurrentPlanet() {
