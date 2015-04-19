@@ -59,13 +59,18 @@ var mainState = {
         planets     = game.add.group();
         projectiles = game.add.group();
 
-        for (var i = 0; i < 10; i++) {
-            addPlanet(game.rnd.integerInRange(0, game.world.width), game.rnd.integerInRange(0, game.world.height), false);
-        }
-
-        addPlanet(game.rnd.integerInRange(0, game.world.width), game.rnd.integerInRange(0, game.world.height), true);
-
         addPlayer(game.world.centerX, game.world.centerY);
+
+        for (var i = 0; i < 11; i++) {
+            var x = game.rnd.integerInRange(0, game.world.width);
+            var y = game.rnd.integerInRange(0, game.world.height);
+            while (Math.abs(game.world.centerX - x) < 300 && Math.abs(game.world.centerY - y) < 300) {
+                x = game.rnd.integerInRange(0, game.world.width);
+                y = game.rnd.integerInRange(0, game.world.height);
+            }
+
+            addPlanet(x, y, i === 0);
+        }
     },
 
     update: function() {
