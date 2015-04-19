@@ -14,7 +14,9 @@ var game,
     currentPlanet,
     gravityDirection,
     players,
-    projectiles;
+    projectiles,
+    flashTextTimer,
+    isGameOver;
 
 function shutdown() {
     planetCollisionGroup = undefined;
@@ -34,6 +36,8 @@ function shutdown() {
     players = undefined;
 
     projectiles = undefined;
+
+    isGameOver = undefined;
 }
 
 var colours = {
@@ -131,7 +135,7 @@ var startState = {
 
         this.controlDisplayLeftRight.strokeThickness = 3;
 
-        this.readyDisplay = game.add.text(game.world.centerX, 720, 'Press a key when ready!');
+        this.readyDisplay = game.add.text(game.world.centerX, 720, 'Press a key to start');
         this.readyDisplay.anchor.set(0.5, 0);
 
         this.readyDisplay.font = 'Press Start 2P';
@@ -142,13 +146,13 @@ var startState = {
 
         this.readyDisplay.strokeThickness = 3;
 
-        this.readyTimer = game.time.create(false);
+        flashTextTimer = game.time.create(false);
 
-        this.readyTimer.loop(Phaser.Timer.SECOND / 2, function() {
+        flashTextTimer.loop(Phaser.Timer.SECOND / 2, function() {
             this.readyDisplay.visible = !this.readyDisplay.visible;
         }, this);
 
-        this.readyTimer.start();
+        flashTextTimer.start();
     },
 
     update: function() {
@@ -159,7 +163,7 @@ var startState = {
         planets.forEachAlive(maybeWrap, this);
 
         if (controls.up.isDown || controls.down.isDown || controls.left.isDown || controls.right.isDown) {
-            this.readyTimer.destroy();
+            flashTextTimer.destroy();
 
             this.titleDisplay.kill();
             this.controlDisplayUp.kill();
@@ -232,11 +236,42 @@ var mainState = {
         players.forEachAlive(maybeWrap, this);
         planets.forEachAlive(maybeWrap, this);
         projectiles.forEachAlive(maybeWrap, this);
+
+        if (isGameOver && (controls.up.isDown || controls.down.isDown || controls.left.isDown || controls.right.isDown)) {
+            flashTextTimer.destroy();
+
+            game.state.start('main');
+        }
     },
 
     shutdown: function() {
         shutdown();
     },
+}
+
+function doGameOver() {
+    game.time.events.add(Phaser.Timer.SECOND * 2, function() {
+        isGameOver = true;
+
+        var readyDisplay = game.add.text(game.world.centerX, 720, 'Press a key to try again');
+        readyDisplay.anchor.set(0.5, 0);
+
+        readyDisplay.font = 'Press Start 2P';
+        readyDisplay.fontSize = 60;
+
+        readyDisplay.fill   = '#' + colours.blue.toString(16);
+        readyDisplay.stroke = '#' + colours.black.toString(16);
+
+        readyDisplay.strokeThickness = 3;
+
+        flashTextTimer = game.time.create(false);
+
+        flashTextTimer.loop(Phaser.Timer.SECOND / 2, function() {
+            readyDisplay.visible = !readyDisplay.visible;
+        }, this);
+
+        flashTextTimer.start();
+    }, this);
 }
 
 function setupScreen() {
@@ -451,9 +486,7 @@ function killPlayer(player) {
     player.kill();
 
     if (players.countLiving() === 0) {
-        game.time.events.add(Phaser.Timer.SECOND * 2, function() {
-            game.state.start('start');
-        }, this);
+        doGameOver();
     }
 }
 
