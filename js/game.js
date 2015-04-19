@@ -10,9 +10,6 @@ var game,
     background,
     midground,
     foreground,
-    trails,
-    trailTexture,
-    trailImage,
     planets,
     currentPlanet,
     players,
@@ -56,7 +53,6 @@ var mainState = {
         game.load.image('background', 'assets/background.png');
         game.load.image('midground',  'assets/midground.png');
         game.load.image('foreground', 'assets/foreground.png');
-        game.load.image('trail',      'assets/trail.png');
         game.load.image('player',     'assets/player.png');
         game.load.image('planet',     'assets/planet.png');
         game.load.image('projectile', 'assets/projectile.png');
@@ -69,9 +65,6 @@ var mainState = {
         game.scale.setScreenSize(true);
 
         controls = game.input.keyboard.createCursorKeys();
-
-        trailImage = game.make.image(0, 0, 'trail');
-        trailImage.anchor.set(0.5);
 
         game.physics.startSystem(Phaser.Physics.P2JS);
 
@@ -86,7 +79,6 @@ var mainState = {
         midground  = game.add.tileSprite(0, 0, 1820, 1024, 'midground');
         foreground = game.add.tileSprite(0, 0, 1820, 1024, 'foreground');
 
-        trails      = game.add.group();
         players     = game.add.group();
         planets     = game.add.group();
         projectiles = game.add.group();
@@ -241,8 +233,6 @@ function addPlayer(x, y) {
     player.canFire = true;
 
     addTimer(player);
-
-    addTrail(player);
 }
 
 function addTimer(player) {
@@ -269,22 +259,6 @@ function addTimer(player) {
     player.timer.start();
 }
 
-function addTrail(player) {
-    // FIXME: This should display the actual trajectory of the player, not their movement in camera space.
-    player.trailTexture = game.add.renderTexture(game.world.width, game.world.height, 'trailTexture');
-
-    player.trail = trails.create(game.world.centerX, game.world.centerY, player.trailTexture);
-    player.trail.anchor.set(0.5);
-
-    player.trailTimer = game.time.create(false);
-
-    player.trailTimer.loop(Phaser.Timer.SECOND / 4, function() {
-        addToTrail(player);
-    }, this);
-
-    // player.trailTimer.start();
-}
-
 function playerHit(player, body) {
     // FIXME: This is if they hit a wall.
     if (body === null) {
@@ -299,7 +273,6 @@ function playerHit(player, body) {
 }
 
 function killPlayer(player) {
-    player.trailTimer.destroy();
     player.timer.destroy();
     player.kill();
 }
@@ -422,10 +395,6 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
 
         obj.body.angularForce = Math.min(10000, 10000 * angularForce);
     }
-}
-
-function addToTrail(player) {
-    player.trailTexture.render(trailImage, player.position, false);
 }
 
 function maybeFire(player) {
