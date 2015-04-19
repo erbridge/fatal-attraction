@@ -99,7 +99,7 @@ var startState = {
         setupPhysics();
 
         addBackground();
-        addPlanets(9);
+        addPlanets(8);
 
         this.titleDisplay = game.add.text(game.world.centerX, 40, 'FATAL ATTRACTION');
         this.titleDisplay.anchor.set(0.5, 0);
@@ -238,7 +238,7 @@ var mainState = {
         setupProjectiles();
 
         addPlayers(1);
-        addPlanets(9);
+        addPlanets(8);
 
         players.forEachAlive(addTimer, this);
         players.forEachAlive(addSpeedDisplay, this);
