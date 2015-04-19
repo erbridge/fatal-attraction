@@ -215,7 +215,7 @@ function addPlayer(x, y) {
     player.body.rotation = game.rnd.realInRange(0, 2 * Math.PI);
 
     player.body.damping = 0;
-    player.body.angularDamping = 0.99;
+    player.body.angularDamping = 0.9999;
 
     player.body.setCollisionGroup(playerCollisionGroup);
     player.body.collides(playerCollisionGroup);
@@ -265,7 +265,7 @@ function movePlayer(player) {
         sign = 1;
     }
 
-    player.body.angularForce += sign * 30;
+    player.body.angularForce += sign * 60;
 
     move(player, 5, false);
 }
