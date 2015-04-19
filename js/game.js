@@ -215,7 +215,7 @@ function addPlayer(x, y) {
         addToTrail(player);
     }, this);
 
-    player.trailTimer.start();
+    // player.trailTimer.start();
 }
 
 function playerHit(player, body) {
