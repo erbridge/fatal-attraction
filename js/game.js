@@ -29,7 +29,7 @@ var colours = {
 
 window.startGame = function() {
     game = new Phaser.Game(
-        1024 * 16 / 9, 1024,
+        1820, 1024,
         Phaser.AUTO
     );
 
