@@ -6,7 +6,9 @@ var game,
     planetCollisionGroup,
     playerCollisionGroup,
     projectileCollisionGroup,
-    controls,
+    cursorControls,
+    wasdControls,
+    zqsdControls,
     background,
     midground,
     foreground,
@@ -19,18 +21,20 @@ var game,
     isGameOver;
 
 function shutdown() {
-    planetCollisionGroup = undefined;
-    playerCollisionGroup = undefined;
+    planetCollisionGroup     = undefined;
+    playerCollisionGroup     = undefined;
     projectileCollisionGroup = undefined;
 
-    controls = undefined;
+    cursorControls = undefined;
+    wasdControls   = undefined;
+    zqsdControls   = undefined;
 
     background = undefined;
-    midground = undefined;
+    midground  = undefined;
     foreground = undefined;
 
-    planets = undefined;
-    currentPlanet = undefined;
+    planets          = undefined;
+    currentPlanet    = undefined;
     gravityDirection = undefined;
 
     players = undefined;
@@ -167,7 +171,7 @@ var startState = {
 
         planets.forEachAlive(maybeWrap, this);
 
-        if (controls.up.isDown || controls.down.isDown || controls.left.isDown || controls.right.isDown) {
+        if (isUpDown() || isDownDown() || isLeftDown() || isRightDown()) {
             flashTextTimer.destroy();
 
             this.titleDisplay.kill();
@@ -248,7 +252,7 @@ var mainState = {
         planets.forEachAlive(maybeWrap, this);
         projectiles.forEachAlive(maybeWrap, this);
 
-        if (isGameOver && (controls.up.isDown || controls.down.isDown || controls.left.isDown || controls.right.isDown)) {
+        if (isGameOver && (isUpDown() || isDownDown() || isLeftDown() || isRightDown())) {
             flashTextTimer.destroy();
 
             game.state.start('main');
@@ -293,7 +297,21 @@ function setupScreen() {
 }
 
 function setupControls() {
-    controls = game.input.keyboard.createCursorKeys();
+    cursorControls = game.input.keyboard.createCursorKeys();
+
+    wasdControls = {
+        up:    game.input.keyboard.addKey(Phaser.Keyboard.W),
+        down:  game.input.keyboard.addKey(Phaser.Keyboard.S),
+        left:  game.input.keyboard.addKey(Phaser.Keyboard.A),
+        right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+    };
+
+    zqsdControls = {
+        up:    game.input.keyboard.addKey(Phaser.Keyboard.Z),
+        down:  game.input.keyboard.addKey(Phaser.Keyboard.S),
+        left:  game.input.keyboard.addKey(Phaser.Keyboard.Q),
+        right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+    };
 }
 
 function setupPhysics() {
@@ -523,9 +541,9 @@ function killPlayer(player) {
 
 function movePlayer(player) {
     var sign = 0;
-    if (controls.left.isDown) {
+    if (isLeftDown()) {
         sign = -1;
-    } else if (controls.right.isDown) {
+    } else if (isRightDown()) {
         sign = 1;
     }
 
@@ -643,9 +661,9 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
 
 function maybeFire(player) {
     var fireType;
-    if (controls.up.isDown) {
+    if (isUpDown()) {
         fireType = 1;
-    } else if (controls.down.isDown) {
+    } else if (isDownDown()) {
         fireType = -1;
     } else {
         return;
@@ -717,6 +735,22 @@ function killProjectile(player, projectile) {
 
 function maybeWrap(obj) {
     game.world.wrap(obj.body, Math.sqrt(obj.height / 2, obj.width / 2));
+}
+
+function isUpDown() {
+    return cursorControls.up.isDown || wasdControls.up.isDown || zqsdControls.up.isDown;
+}
+
+function isDownDown() {
+    return cursorControls.down.isDown || wasdControls.down.isDown || zqsdControls.down.isDown;
+}
+
+function isLeftDown() {
+    return cursorControls.left.isDown || wasdControls.left.isDown || zqsdControls.left.isDown;
+}
+
+function isRightDown() {
+    return cursorControls.right.isDown || wasdControls.right.isDown || zqsdControls.right.isDown;
 }
 
 })();
