@@ -428,8 +428,8 @@ function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
     cameraShake = -cameraShake * 0.9;
 }
 
-function shakeCamera() {
-    cameraShake += 100;
+function shakeCamera(value) {
+    cameraShake += value;
 }
 
 function addPlanet(x, y, isCurrent) {
@@ -600,7 +600,7 @@ function killPlayer(player) {
 
     players.boomSfx.play();
 
-    shakeCamera();
+    shakeCamera(100);
 
     if (players.countLiving() === 0) {
         doGameOver();
@@ -802,6 +802,8 @@ function projectileHit(player, projectile, body) {
     if (body === null) {
         return;
     }
+
+    shakeCamera(4);
 
     setCurrentPlanet(body.sprite, projectile.fireType, true);
 }
