@@ -20,6 +20,7 @@ var game,
     gravityDirection;
 
 var colours = {
+    black:  0x1d1f21,
     red:    0xcc6666,
     orange: 0xde935f,
     yellow: 0xf0c674,
@@ -40,8 +41,18 @@ window.startGame = function() {
     game.state.start('main');
 };
 
+window.WebFontConfig = {
+    google: {
+        families: [
+            'Press Start 2P',
+        ],
+    },
+};
+
 var mainState = {
     preload: function() {
+        game.load.script('webfont',   '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
+
         game.load.image('background', 'assets/background.png');
         game.load.image('midground',  'assets/midground.png');
         game.load.image('foreground', 'assets/foreground.png');
@@ -227,6 +238,36 @@ function addPlayer(x, y) {
 
     player.canFire = true;
 
+    addTimer(player);
+
+    addTrail(player);
+}
+
+function addTimer(player) {
+    var pad = '000000';
+
+    player.timerDisplay = game.add.text(20, 20, pad);
+
+    player.timerDisplay.font = 'Press Start 2P';
+    player.timerDisplay.fontSize = 60;
+
+    player.timerDisplay.fill   = '#' + colours.red.toString(16);
+    player.timerDisplay.stroke = '#' + colours.black.toString(16);
+
+    player.timerDisplay.strokeThickness = 3;
+
+    player.timer = game.time.create(false);
+
+    player.timer.loop(1, function() {
+        var ms = player.timer.ms;
+        var text = (pad + ms).slice(-pad.length);
+        player.timerDisplay.setText(text);
+    }, this);
+
+    player.timer.start();
+}
+
+function addTrail(player) {
     // FIXME: This should display the actual trajectory of the player, not their movement in camera space.
     player.trailTexture = game.add.renderTexture(game.world.width, game.world.height, 'trailTexture');
 
@@ -249,10 +290,12 @@ function playerHit(player, body) {
     }
 
     player.trailTimer.destroy();
+    player.timer.destroy();
     player.kill();
 
     if (body.sprite.key === 'player') {
         body.sprite.trailTimer.destroy();
+        body.sprite.timer.destroy();
         body.kill();
     }
 }
