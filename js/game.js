@@ -12,9 +12,29 @@ var game,
     foreground,
     planets,
     currentPlanet,
+    gravityDirection,
     players,
-    projectiles,
-    gravityDirection;
+    projectiles;
+
+function shutdown() {
+    planetCollisionGroup = undefined;
+    playerCollisionGroup = undefined;
+    projectileCollisionGroup = undefined;
+
+    controls = undefined;
+
+    background = undefined;
+    midground = undefined;
+    foreground = undefined;
+
+    planets = undefined;
+    currentPlanet = undefined;
+    gravityDirection = undefined;
+
+    players = undefined;
+
+    projectiles = undefined;
+}
 
 var colours = {
     black:  0x1d1f21,
@@ -59,54 +79,17 @@ var mainState = {
     },
 
     create: function() {
-        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        game.scale.pageAlignHorizontally = true;
-        game.scale.pageAlignVertically = true;
-        game.scale.setScreenSize(true);
+        setupScreen();
+        setupControls();
+        setupPhysics();
 
-        controls = game.input.keyboard.createCursorKeys();
+        addBackground();
+        addPlayers(1);
+        addPlanets(11);
 
-        game.physics.startSystem(Phaser.Physics.P2JS);
-
-        playerCollisionGroup     = game.physics.p2.createCollisionGroup();
-        planetCollisionGroup     = game.physics.p2.createCollisionGroup();
-        projectileCollisionGroup = game.physics.p2.createCollisionGroup();
-
-        // Make things collide with the bounds.
-        // game.physics.p2.updateBoundsCollisionGroup();
-
-        background = game.add.tileSprite(0, 0, 1820, 1024, 'background');
-        midground  = game.add.tileSprite(0, 0, 1820, 1024, 'midground');
-        foreground = game.add.tileSprite(0, 0, 1820, 1024, 'foreground');
-
-        players     = game.add.group();
-        planets     = game.add.group();
         projectiles = game.add.group();
 
-        addPlayer(game.world.centerX, game.world.centerY);
-
-        var minX = 500;
-        var minY = 500;
-        var maxX = game.world.width - 500;
-        var maxY = game.world.height - 500;
-
-        for (var i = 0; i < 11; i++) {
-            var x = game.rnd.integerInRange(minX, maxX);
-            var y = game.rnd.integerInRange(minY, maxY);
-            while (Math.abs(game.world.centerX - x) < 300 && Math.abs(game.world.centerY - y) < 300) {
-                x = game.rnd.integerInRange(minX, maxX);
-                y = game.rnd.integerInRange(minY, maxY);
-            }
-
-            addPlanet(x, y, i === 0);
-
-            if (i === 0) {
-                minX = 0;
-                minY = 0;
-                maxX = game.world.width;
-                maxY = game.world.height;
-            }
-        }
+        players.forEachAlive(addTimer, this);
     },
 
     update: function() {
@@ -127,8 +110,68 @@ var mainState = {
     },
 
     shutdown: function() {
-        // FIXME: Tidy up and reset everything!
+        shutdown();
     },
+}
+
+function setupScreen() {
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    game.scale.pageAlignHorizontally = true;
+    game.scale.pageAlignVertically = true;
+    game.scale.setScreenSize(true);
+}
+
+function setupControls() {
+    controls = game.input.keyboard.createCursorKeys();
+}
+
+function setupPhysics() {
+    game.physics.startSystem(Phaser.Physics.P2JS);
+
+    playerCollisionGroup     = game.physics.p2.createCollisionGroup();
+    planetCollisionGroup     = game.physics.p2.createCollisionGroup();
+    projectileCollisionGroup = game.physics.p2.createCollisionGroup();
+}
+
+function addBackground() {
+    background = game.add.tileSprite(0, 0, 1820, 1024, 'background');
+    midground  = game.add.tileSprite(0, 0, 1820, 1024, 'midground');
+    foreground = game.add.tileSprite(0, 0, 1820, 1024, 'foreground');
+}
+
+function addPlayers(count) {
+    // TODO: Use the count.
+
+    players = game.add.group();
+
+    addPlayer(game.world.centerX, game.world.centerY);
+}
+
+function addPlanets(count) {
+    planets = game.add.group();
+
+    var minX = 500;
+    var minY = 500;
+    var maxX = game.world.width - 500;
+    var maxY = game.world.height - 500;
+
+    for (var i = 0; i < count; i++) {
+        var x = game.rnd.integerInRange(minX, maxX);
+        var y = game.rnd.integerInRange(minY, maxY);
+        while (Math.abs(game.world.centerX - x) < 300 && Math.abs(game.world.centerY - y) < 300) {
+            x = game.rnd.integerInRange(minX, maxX);
+            y = game.rnd.integerInRange(minY, maxY);
+        }
+
+        addPlanet(x, y, i === 0);
+
+        if (i === 0) {
+            minX = 0;
+            minY = 0;
+            maxX = game.world.width;
+            maxY = game.world.height;
+        }
+    }
 }
 
 function lerpWorldCenterTowardsCurrentPlanet() {
@@ -157,9 +200,17 @@ function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
         obj.body.y += y;
     }
 
-    players.forEachAlive(lerp, this);
-    planets.forEachAlive(lerp, this);
-    projectiles.forEachAlive(lerp, this);
+    if (players) {
+        players.forEachAlive(lerp, this);
+    }
+
+    if (planets) {
+        planets.forEachAlive(lerp, this);
+    }
+
+    if (projectiles) {
+        projectiles.forEachAlive(lerp, this);
+    }
 }
 
 function addPlanet(x, y, isCurrent) {
@@ -231,8 +282,6 @@ function addPlayer(x, y) {
     }, this);
 
     player.canFire = true;
-
-    addTimer(player);
 }
 
 function addTimer(player) {
