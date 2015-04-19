@@ -17,6 +17,7 @@ var game,
     gravityDirection,
     players,
     projectiles,
+    cameraShake,
     flashTextTimer,
     playTimer,
     isGameOver;
@@ -304,6 +305,8 @@ function setupScreen() {
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
     game.scale.setScreenSize(true);
+
+    cameraShake = 0;
 }
 
 function setupControls() {
@@ -393,8 +396,8 @@ function lerpWorldCenterTowardsPlayer(player) {
 }
 
 function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
-    var x = (game.world.centerX - targetX) / lerpFactor;
-    var y = (game.world.centerY - targetY) / lerpFactor;
+    var x = (game.world.centerX - targetX) / lerpFactor + cameraShake;
+    var y = (game.world.centerY - targetY) / lerpFactor + cameraShake;
 
     background.tilePosition.x += x * 1.3;
     background.tilePosition.y += y * 1.3;
@@ -421,6 +424,12 @@ function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
     if (projectiles) {
         projectiles.forEachAlive(lerp, this);
     }
+
+    cameraShake = -cameraShake * 0.9;
+}
+
+function shakeCamera() {
+    cameraShake += 100;
 }
 
 function addPlanet(x, y, isCurrent) {
@@ -590,6 +599,8 @@ function killPlayer(player) {
     player.kill();
 
     players.boomSfx.play();
+
+    shakeCamera();
 
     if (players.countLiving() === 0) {
         doGameOver();
