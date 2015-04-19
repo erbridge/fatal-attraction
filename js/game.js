@@ -74,13 +74,15 @@ window.WebFontConfig = {
 
 var startState = {
     preload: function() {
-        game.load.script('webfont',   '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
+        game.load.script('webfont',    '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
 
-        game.load.image('background', 'assets/background.png');
-        game.load.image('midground',  'assets/midground.png');
-        game.load.image('foreground', 'assets/foreground.png');
-        game.load.image('player',     'assets/player.png');
-        game.load.image('planet',     'assets/planet.png');
+        game.load.audio('discord-sfx', 'assets/discord.wav');
+
+        game.load.image('background',  'assets/background.png');
+        game.load.image('midground',   'assets/midground.png');
+        game.load.image('foreground',  'assets/foreground.png');
+        game.load.image('player',      'assets/player.png');
+        game.load.image('planet',      'assets/planet.png');
     },
 
     create: function() {
@@ -153,6 +155,9 @@ var startState = {
         }, this);
 
         flashTextTimer.start();
+
+        var discordSfx = game.add.audio('discord-sfx', 0.7);
+        discordSfx.loopFull();
     },
 
     update: function() {
@@ -197,16 +202,20 @@ var startState = {
 
 var mainState = {
     preload: function() {
-        game.load.script('webfont',   '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
+        game.load.script('webfont',          '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
 
-        game.load.audio('shoot-sfx',  'assets/shoot.wav');
+        game.load.audio('shoot-sfx',         'assets/shoot.wav');
+        game.load.audio('boom-sfx',          'assets/boom.wav');
+        game.load.audio('attractor-hit-sfx', 'assets/attractor-hit.wav');
+        game.load.audio('repulsor-hit-sfx',  'assets/repulsor-hit.wav');
+        game.load.audio('discord-sfx',       'assets/discord.wav');
 
-        game.load.image('background', 'assets/background.png');
-        game.load.image('midground',  'assets/midground.png');
-        game.load.image('foreground', 'assets/foreground.png');
-        game.load.image('player',     'assets/player.png');
-        game.load.image('planet',     'assets/planet.png');
-        game.load.image('projectile', 'assets/projectile.png');
+        game.load.image('background',        'assets/background.png');
+        game.load.image('midground',         'assets/midground.png');
+        game.load.image('foreground',        'assets/foreground.png');
+        game.load.image('player',            'assets/player.png');
+        game.load.image('planet',            'assets/planet.png');
+        game.load.image('projectile',        'assets/projectile.png');
     },
 
     create: function() {
@@ -306,11 +315,16 @@ function addPlayers(count) {
 
     players = game.add.group();
 
+    players.boomSfx = game.add.audio('boom-sfx');
+
     addPlayer(game.world.centerX, game.world.centerY);
 }
 
 function addPlanets(count) {
     planets = game.add.group();
+
+    planets.attractorHitSfx = game.add.audio('attractor-hit-sfx');
+    planets.repulsorHitSfx  = game.add.audio('repulsor-hit-sfx');
 
     var minX = 500;
     var minY = 500;
@@ -406,7 +420,7 @@ function addPlanet(x, y, isCurrent) {
     }
 }
 
-function setCurrentPlanet(planet, gravityDirectionToSet) {
+function setCurrentPlanet(planet, gravityDirectionToSet, playSfx) {
     if (gravityDirectionToSet === undefined) {
         gravityDirectionToSet = 1;
     }
@@ -416,15 +430,22 @@ function setCurrentPlanet(planet, gravityDirectionToSet) {
         currentPlanet.body.mass = 100;
     }
 
+    var sfx;
     if (gravityDirectionToSet === 1) {
         planet.tint = colours.green;
+        sfx = planets.attractorHitSfx;
     } else {
         planet.tint = colours.purple;
+        sfx = planets.repulsorHitSfx;
     }
 
     planet.body.mass = 1000000;
 
     gravityDirection = gravityDirectionToSet;
+
+    if (playSfx) {
+        sfx.play();
+    }
 
     currentPlanet = planet;
 }
@@ -492,6 +513,8 @@ function playerHit(player, body) {
 function killPlayer(player) {
     player.timer.destroy();
     player.kill();
+
+    players.boomSfx.play();
 
     if (players.countLiving() === 0) {
         doGameOver();
@@ -683,7 +706,7 @@ function projectileHit(player, projectile, body) {
         return;
     }
 
-    setCurrentPlanet(body.sprite, projectile.fireType);
+    setCurrentPlanet(body.sprite, projectile.fireType, true);
 }
 
 function killProjectile(player, projectile) {
