@@ -18,6 +18,7 @@ var game,
     players,
     projectiles,
     flashTextTimer,
+    playTimer,
     isGameOver;
 
 function shutdown() {
@@ -234,6 +235,9 @@ var mainState = {
         setupProjectiles();
 
         players.forEachAlive(addTimer, this);
+
+        playTimer = game.time.create(false);
+        playTimer.start();
     },
 
     update: function() {
@@ -254,6 +258,7 @@ var mainState = {
 
         if (isGameOver && (isUpDown() || isDownDown() || isLeftDown() || isRightDown())) {
             flashTextTimer.destroy();
+            playTimer.destroy();
 
             game.state.start('main');
         }
@@ -265,6 +270,8 @@ var mainState = {
 }
 
 function doGameOver() {
+    playTimer.stop();
+
     game.time.events.add(Phaser.Timer.SECOND * 2, function() {
         isGameOver = true;
 
@@ -565,6 +572,11 @@ function move(obj, forceCoefficient, shouldSpin) {
 }
 
 function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
+    var difficultyFactor = 1;
+    if (playTimer) {
+        difficultyFactor += Math.pow(playTimer.ms / 10000, 1.1);
+    }
+
     // These are axis aligned squares!
     var objTopLeftX     = obj.x - obj.width / 2;
     var objTopLeftY     = obj.y + obj.height / 2;
@@ -621,7 +633,7 @@ function accelerateToObject(obj, target, forceCoefficient, shouldSpin) {
 
     var force = Math.min(
         20000000,
-        gravityDirection * forceCoefficient * obj.body.mass * target.body.mass / squaredDistance
+        gravityDirection * difficultyFactor * forceCoefficient * obj.body.mass * target.body.mass / squaredDistance
     );
 
     obj.body.force.x = Math.cos(angle) * force;
