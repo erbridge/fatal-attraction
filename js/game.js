@@ -54,8 +54,10 @@ window.startGame = function() {
         Phaser.AUTO
     );
 
+    game.state.add('start', startState);
     game.state.add('main', mainState);
-    game.state.start('main');
+
+    game.state.start('start');
 };
 
 window.WebFontConfig = {
@@ -65,6 +67,129 @@ window.WebFontConfig = {
         ],
     },
 };
+
+var startState = {
+    preload: function() {
+        game.load.script('webfont',   '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
+
+        game.load.image('background', 'assets/background.png');
+        game.load.image('midground',  'assets/midground.png');
+        game.load.image('foreground', 'assets/foreground.png');
+        game.load.image('player',     'assets/player.png');
+        game.load.image('planet',     'assets/planet.png');
+    },
+
+    create: function() {
+        setupScreen();
+        setupControls();
+        setupPhysics();
+
+        addBackground();
+        addPlanets(11);
+
+        this.titleDisplay = game.add.text(game.world.centerX, 40, 'FATAL ATTRACTION');
+        this.titleDisplay.anchor.set(0.5, 0);
+
+        this.titleDisplay.font = 'Press Start 2P';
+        this.titleDisplay.fontSize = 105;
+
+        this.titleDisplay.fill   = '#' + colours.yellow.toString(16);
+        this.titleDisplay.stroke = '#' + colours.black.toString(16);
+
+        this.titleDisplay.strokeThickness = 3;
+
+        this.controlDisplayUp = game.add.text(game.world.centerX, 250, 'UP - Gravity Gun');
+        this.controlDisplayUp.anchor.set(0.5, 0);
+
+        this.controlDisplayUp.font = 'Press Start 2P';
+        this.controlDisplayUp.fontSize = 30;
+
+        this.controlDisplayUp.fill   = '#' + colours.green.toString(16);
+        this.controlDisplayUp.stroke = '#' + colours.black.toString(16);
+
+        this.controlDisplayUp.strokeThickness = 3;
+
+        this.controlDisplayDown = game.add.text(game.world.centerX, 350, 'DOWN - Anti-Gravity Gun');
+        this.controlDisplayDown.anchor.set(0.5, 0);
+
+        this.controlDisplayDown.font = 'Press Start 2P';
+        this.controlDisplayDown.fontSize = 30;
+
+        this.controlDisplayDown.fill   = '#' + colours.purple.toString(16);
+        this.controlDisplayDown.stroke = '#' + colours.black.toString(16);
+
+        this.controlDisplayDown.strokeThickness = 3;
+
+        this.controlDisplayLeftRight = game.add.text(game.world.centerX, 450, 'LEFT / RIGHT - Rotate');
+        this.controlDisplayLeftRight.anchor.set(0.5, 0);
+
+        this.controlDisplayLeftRight.font = 'Press Start 2P';
+        this.controlDisplayLeftRight.fontSize = 30;
+
+        this.controlDisplayLeftRight.fill   = '#' + colours.red.toString(16);
+        this.controlDisplayLeftRight.stroke = '#' + colours.black.toString(16);
+
+        this.controlDisplayLeftRight.strokeThickness = 3;
+
+        this.readyDisplay = game.add.text(game.world.centerX, 720, 'Press a key when ready!');
+        this.readyDisplay.anchor.set(0.5, 0);
+
+        this.readyDisplay.font = 'Press Start 2P';
+        this.readyDisplay.fontSize = 60;
+
+        this.readyDisplay.fill   = '#' + colours.blue.toString(16);
+        this.readyDisplay.stroke = '#' + colours.black.toString(16);
+
+        this.readyDisplay.strokeThickness = 3;
+
+        this.readyTimer = game.time.create(false);
+
+        this.readyTimer.loop(Phaser.Timer.SECOND / 2, function() {
+            this.readyDisplay.visible = !this.readyDisplay.visible;
+        }, this);
+
+        this.readyTimer.start();
+    },
+
+    update: function() {
+        planets.forEachAlive(movePlanet, this);
+
+        lerpWorldCenterTowardsCurrentPlanet();
+
+        planets.forEachAlive(maybeWrap, this);
+
+        if (controls.up.isDown || controls.down.isDown || controls.left.isDown || controls.right.isDown) {
+            this.readyTimer.destroy();
+
+            this.titleDisplay.kill();
+            this.controlDisplayUp.kill();
+            this.controlDisplayDown.kill();
+            this.controlDisplayLeftRight.kill();
+            this.readyDisplay.kill();
+
+            game.time.events.add(Phaser.Timer.SECOND / 2, function() {
+                var warningDisplay = game.add.text(game.world.centerX, game.world.centerY, 'Don\'t Die');
+                warningDisplay.anchor.set(0.5);
+
+                warningDisplay.font = 'Press Start 2P';
+                warningDisplay.fontSize = 60;
+
+                warningDisplay.fill   = '#' + colours.red.toString(16);
+                warningDisplay.stroke = '#' + colours.black.toString(16);
+
+                warningDisplay.strokeThickness = 3;
+
+                game.time.events.add(Phaser.Timer.SECOND, function() {
+                    game.state.start('main');
+                }, this);
+            }, this);
+        }
+    },
+
+    shutdown: function() {
+        shutdown();
+    },
+}
 
 var mainState = {
     preload: function() {
@@ -324,6 +449,12 @@ function playerHit(player, body) {
 function killPlayer(player) {
     player.timer.destroy();
     player.kill();
+
+    if (players.countLiving() === 0) {
+        game.time.events.add(Phaser.Timer.SECOND * 2, function() {
+            game.state.start('start');
+        }, this);
+    }
 }
 
 function movePlayer(player) {
