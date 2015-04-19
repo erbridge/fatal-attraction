@@ -1,6 +1,6 @@
 # Fatal Attraction
 
-This is a game I made for Ludum Dare 32.
+This is a game I made for Ludum Dare 32. The theme was **An Unconventional Weapon**.
 
 ## Tools
 
