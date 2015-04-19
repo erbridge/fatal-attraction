@@ -244,7 +244,7 @@ function addPlayer(x, y) {
 }
 
 function addTimer(player) {
-    var pad = '000000';
+    var pad = '0000000';
 
     player.timerDisplay = game.add.text(20, 20, pad);
 
