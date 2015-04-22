@@ -12,6 +12,8 @@ var game,
     background,
     midground,
     foreground,
+    ghostPlanetWaves,
+    planetWaves,
     planets,
     currentPlanet,
     gravityDirection,
@@ -36,6 +38,9 @@ function shutdown() {
     background = undefined;
     midground  = undefined;
     foreground = undefined;
+
+    ghostPlanetWaves = undefined;
+    planetWaves      = undefined;
 
     planets          = undefined;
     currentPlanet    = undefined;
@@ -91,6 +96,7 @@ var startState = {
         game.load.image('foreground',  'assets/foreground.png');
         game.load.image('player',      'assets/player.png');
         game.load.image('planet',      'assets/planet.png');
+        game.load.image('planet-wave', 'assets/planet-wave.png');
     },
 
     create: function() {
@@ -235,6 +241,7 @@ var mainState = {
 
         addBackground();
 
+        setupPlanetWaves();
         setupProjectiles();
 
         addPlayers(1);
@@ -268,6 +275,33 @@ var mainState = {
             playTimer.destroy();
 
             game.state.start('main');
+        }
+    },
+
+    preRender: function() {
+        if (planetWaves) {
+            planetWaves.forEachAlive(function(wave) {
+                var x = wave.planet.x - wave.x;
+                var y = wave.planet.y - wave.y;
+
+                wave.x += x;
+                wave.y += y;
+
+                for (var type in wave.ghosts) {
+                    if (wave.ghosts.hasOwnProperty(type)) {
+                        wave.ghosts[type].x += x;
+                        wave.ghosts[type].y += y;
+                    }
+                }
+            }, this);
+        }
+
+        if (players) {
+            players.forEachAlive(function(player) {
+                if (player.timer.running) {
+                    setTimeDisplay(player);
+                }
+            }, this);
         }
     },
 
@@ -346,6 +380,17 @@ function addBackground() {
     foreground = game.add.tileSprite(0, 0, 1820, 1024, 'foreground');
 }
 
+function setupPlanetWaves() {
+    ghostPlanetWaves = game.add.group();
+    planetWaves      = game.add.group();
+}
+
+function setupProjectiles() {
+    projectiles = game.add.group();
+
+    projectiles.shootSfx = game.add.audio('shoot-sfx', 0.5);
+}
+
 function addPlayers(count) {
     // TODO: Use the count.
 
@@ -384,12 +429,16 @@ function addPlanets(count) {
             maxY = game.world.height;
         }
     }
-}
 
-function setupProjectiles() {
-    projectiles = game.add.group();
+    if (planetWaves) {
+        planetWaves.timer = game.time.create(false);
 
-    projectiles.shootSfx = game.add.audio('shoot-sfx', 0.5);
+        planetWaves.timer.loop(Phaser.Timer.SECOND / 2, function() {
+            addPlanetWave();
+        }, this);
+
+        planetWaves.timer.start();
+    }
 }
 
 function lerpWorldCenterTowardsCurrentPlanet() {
@@ -495,6 +544,73 @@ function setCurrentPlanet(planet, gravityDirectionToSet, playSfx) {
     currentPlanet = planet;
 }
 
+function addPlanetWave() {
+    var planetWave = planetWaves.create(currentPlanet.x, currentPlanet.y, 'planet-wave');
+
+    planetWave.planet = currentPlanet;
+
+    var topWave    = ghostPlanetWaves.create(currentPlanet.x, currentPlanet.y + game.world.height, 'planet-wave');
+    var bottomWave = ghostPlanetWaves.create(currentPlanet.x, currentPlanet.y - game.world.height, 'planet-wave');
+    var leftWave   = ghostPlanetWaves.create(currentPlanet.x - game.world.width, currentPlanet.y, 'planet-wave');
+    var rightWave  = ghostPlanetWaves.create(currentPlanet.x + game.world.width, currentPlanet.y, 'planet-wave');
+
+    planetWave.ghosts = {
+        t: topWave,
+        b: bottomWave,
+        l: leftWave,
+        r: rightWave,
+    }
+
+    function setupWave(wave) {
+        wave.anchor.set(0.5);
+
+        var tint,
+            startScale,
+            endScale;
+        if (gravityDirection == 1) {
+            tint = colours.green;
+            startScale = 1;
+            endScale = 0;
+        } else {
+            tint = colours.purple;
+            startScale = 0;
+            endScale = 1;
+        }
+
+        wave.tint = tint;
+
+        wave.scale.set(startScale);
+        game.add.tween(wave.scale)
+            .to({
+                x: endScale,
+                y: endScale,
+            })
+            .start();
+
+        wave.alpha = 0;
+        game.add.tween(wave)
+            .to({
+                alpha: 1,
+            }, Phaser.Timer.SECOND / 2)
+            .to({
+                alpha: 0,
+            }, Phaser.Timer.SECOND / 2)
+            .start();
+    }
+
+    setupWave(planetWave);
+
+    for (var type in planetWave.ghosts) {
+        if (planetWave.ghosts.hasOwnProperty(type)) {
+            setupWave(planetWave.ghosts[type]);
+        }
+    }
+
+    game.time.events.add(Phaser.Timer.SECOND, function() {
+        planetWave.destroy();
+    }, this);
+}
+
 function addPlayer(x, y) {
     var player = players.create(x, y, 'player');
     game.physics.p2.enable(player);
@@ -557,10 +673,6 @@ function addTimer(player) {
     player.timeLabelDisplay.strokeThickness = 3;
 
     player.timer = game.time.create(false);
-
-    player.timer.loop(1, function() {
-        setTimeDisplay(player);
-    }, this);
 
     setTimeDisplay(player);
     setTimeRecordDisplay(player);
