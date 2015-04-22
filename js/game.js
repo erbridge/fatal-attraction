@@ -846,7 +846,7 @@ function addProjectile(player, fireType) {
     projectile.body.collides(planetCollisionGroup);
 
     projectile.body.onBeginContact.add(function(body) {
-        projectileHit(player, projectile, body);
+        projectileHit(projectile, body);
     }, this);
 
     projectile.fireType = fireType;
@@ -856,7 +856,7 @@ function addProjectile(player, fireType) {
     }, this);
 
     game.time.events.add(Phaser.Timer.SECOND * 2, function() {
-        killProjectile(player, projectile);
+        killProjectile(projectile);
     }, this);
 
     player.canFire = false;
@@ -864,8 +864,8 @@ function addProjectile(player, fireType) {
     projectiles.shootSfx.play();
 }
 
-function projectileHit(player, projectile, body) {
-    killProjectile(player, projectile)
+function projectileHit(projectile, body) {
+    killProjectile(projectile)
 
     // FIXME: This is if it hit a wall.
     if (body === null) {
@@ -877,10 +877,8 @@ function projectileHit(player, projectile, body) {
     setCurrentPlanet(body.sprite, projectile.fireType, true);
 }
 
-function killProjectile(player, projectile) {
+function killProjectile(projectile) {
     projectile.kill();
-
-    player.hasProjectile = false;
 }
 
 function maybeWrap(obj) {
