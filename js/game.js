@@ -178,11 +178,11 @@ var startState = {
         if (isUpDown() || isDownDown() || isLeftDown() || isRightDown()) {
             flashTextTimer.destroy();
 
-            this.titleDisplay.kill();
-            this.controlDisplayUp.kill();
-            this.controlDisplayDown.kill();
-            this.controlDisplayLeftRight.kill();
-            this.readyDisplay.kill();
+            this.titleDisplay.destroy();
+            this.controlDisplayUp.destroy();
+            this.controlDisplayDown.destroy();
+            this.controlDisplayLeftRight.destroy();
+            this.readyDisplay.destroy();
 
             game.time.events.add(Phaser.Timer.SECOND / 2, function() {
                 var warningDisplay = game.add.text(game.world.centerX, game.world.centerY, 'Don\'t Die');
@@ -472,14 +472,17 @@ function setCurrentPlanet(planet, gravityDirectionToSet, playSfx) {
         currentPlanet.body.mass = 100;
     }
 
-    var sfx;
+    var tint,
+        sfx;
     if (gravityDirectionToSet === 1) {
-        planet.tint = colours.green;
+        tint = colours.green;
         sfx = planets.attractorHitSfx;
     } else {
-        planet.tint = colours.purple;
+        tint = colours.purple;
         sfx = planets.repulsorHitSfx;
     }
+
+    planet.tint = tint;
 
     planet.body.mass = 1000000;
 
@@ -656,16 +659,16 @@ function playerHit(player, body) {
         return;
     }
 
-    killPlayer(player);
+    destroyPlayer(player);
 
     if (body.sprite.key === 'player') {
-        killPlayer(body.sprite);
+        destroyPlayer(body.sprite);
     }
 }
 
-function killPlayer(player) {
+function destroyPlayer(player) {
     player.timer.destroy();
-    player.kill();
+    player.destroy();
 
     players.boomSfx.play();
 
@@ -856,7 +859,7 @@ function addProjectile(player, fireType) {
     }, this);
 
     game.time.events.add(Phaser.Timer.SECOND * 2, function() {
-        killProjectile(projectile);
+        destroyProjectile(projectile);
     }, this);
 
     player.canFire = false;
@@ -865,7 +868,7 @@ function addProjectile(player, fireType) {
 }
 
 function projectileHit(projectile, body) {
-    killProjectile(projectile)
+    destroyProjectile(projectile)
 
     // FIXME: This is if it hit a wall.
     if (body === null) {
@@ -877,8 +880,8 @@ function projectileHit(projectile, body) {
     setCurrentPlanet(body.sprite, projectile.fireType, true);
 }
 
-function killProjectile(projectile) {
-    projectile.kill();
+function destroyProjectile(projectile) {
+    projectile.destroy();
 }
 
 function maybeWrap(obj) {
