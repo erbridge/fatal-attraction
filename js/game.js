@@ -443,14 +443,14 @@ function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
     var x = (game.world.centerX - targetX) / lerpFactor + screenShake;
     var y = (game.world.centerY - targetY) / lerpFactor + screenShake;
 
-    background.tilePosition.x += x * 1.3;
-    background.tilePosition.y += y * 1.3;
+    background.tilePosition.x += x;
+    background.tilePosition.y += y;
 
     midground.tilePosition.x += x * 1.2;
     midground.tilePosition.y += y * 1.2;
 
-    foreground.tilePosition.x += x;
-    foreground.tilePosition.y += y;
+    foreground.tilePosition.x += x * 1.3;
+    foreground.tilePosition.y += y * 1.3;
 
     function lerp(obj) {
         obj.body.x += x;
