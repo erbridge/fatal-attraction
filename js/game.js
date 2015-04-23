@@ -517,7 +517,8 @@ function setCurrentPlanet(planet, gravityDirectionToSet, playSfx) {
     }
 
     if (currentPlanet !== undefined) {
-        currentPlanet.tint = colours.aqua;
+        tweenTint(currentPlanet, colours.aqua, Phaser.Timer.SECOND / 2);
+
         currentPlanet.body.mass = 100;
     }
 
@@ -531,7 +532,7 @@ function setCurrentPlanet(planet, gravityDirectionToSet, playSfx) {
         sfx = planets.repulsorHitSfx;
     }
 
-    planet.tint = tint;
+    tweenTint(planet, tint, Phaser.Timer.SECOND / 2);
 
     planet.body.mass = 1000000;
 
@@ -1014,6 +1015,23 @@ function isLeftDown() {
 
 function isRightDown() {
     return cursorControls.right.isDown || wasdControls.right.isDown || zqsdControls.right.isDown;
+}
+
+function tweenTint(obj, targetTint, time) {
+    var startTint = obj.tint;
+
+    var colourBlend = {
+        step: 0,
+    };
+
+    game.add.tween(colourBlend)
+        .to({
+            step: 100
+        }, time)
+        .onUpdateCallback(function() {
+            obj.tint = Phaser.Color.interpolateColor(startTint, targetTint, 100, colourBlend.step);
+        })
+        .start();
 }
 
 })();
