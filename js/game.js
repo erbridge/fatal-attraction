@@ -429,18 +429,6 @@ function addPlanets(count) {
             maxY = game.world.height;
         }
     }
-
-    if (planetWaves) {
-        planetWaves.timer = game.time.create(false);
-
-        planetWaves.timer.loop(Phaser.Timer.SECOND * 2, function() {
-            addPlanetWave();
-        }, this);
-
-        addPlanetWave();
-
-        planetWaves.timer.start();
-    }
 }
 
 function lerpWorldCenterTowardsCurrentPlanet() {
@@ -518,6 +506,8 @@ function setCurrentPlanet(planet, gravityDirectionToSet, playSfx) {
         gravityDirectionToSet = 1;
     }
 
+    var shouldResetWaves = currentPlanet !== planet || gravityDirection !== gravityDirectionToSet;
+
     if (currentPlanet !== undefined) {
         tweenTint(currentPlanet, colours.aqua, Phaser.Timer.SECOND / 2);
 
@@ -545,6 +535,52 @@ function setCurrentPlanet(planet, gravityDirectionToSet, playSfx) {
     }
 
     currentPlanet = planet;
+
+    if (shouldResetWaves) {
+        resetPlanetWaves();
+    }
+}
+
+function resetPlanetWaves() {
+    if (!planetWaves) {
+        return;
+    }
+
+    planetWaves.forEachAlive(function(wave) {
+        wave.fadeTween.stop();
+
+        game.add.tween(wave)
+            .to({
+                alpha: 0,
+            }, Phaser.Timer.SECOND / 10)
+            .start();
+
+        for (var type in wave.ghosts) {
+            if (wave.ghosts.hasOwnProperty(type)) {
+                wave.ghosts[type].fadeTween.stop();
+
+                game.add.tween(wave.ghosts[type])
+                    .to({
+                        alpha: 0,
+                    }, Phaser.Timer.SECOND / 10)
+                    .start();
+            }
+        }
+    }, this)
+
+    if (planetWaves.timer) {
+        planetWaves.timer.destroy();
+    }
+
+    planetWaves.timer = game.time.create(false);
+
+    planetWaves.timer.loop(Phaser.Timer.SECOND * 2, function() {
+        addPlanetWave();
+    }, this);
+
+    addPlanetWave();
+
+    planetWaves.timer.start();
 }
 
 function addPlanetWave() {
@@ -586,7 +622,7 @@ function addPlanetWave() {
             .start();
 
         wave.alpha = 0;
-        game.add.tween(wave)
+        wave.fadeTween = game.add.tween(wave)
             .to({
                 alpha: 1,
             }, Phaser.Timer.SECOND)
