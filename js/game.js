@@ -433,9 +433,11 @@ function addPlanets(count) {
     if (planetWaves) {
         planetWaves.timer = game.time.create(false);
 
-        planetWaves.timer.loop(Phaser.Timer.SECOND / 2, function() {
+        planetWaves.timer.loop(Phaser.Timer.SECOND * 2, function() {
             addPlanetWave();
         }, this);
+
+        addPlanetWave();
 
         planetWaves.timer.start();
     }
@@ -550,16 +552,11 @@ function addPlanetWave() {
 
     planetWave.planet = currentPlanet;
 
-    var topWave    = ghostPlanetWaves.create(currentPlanet.x, currentPlanet.y + game.world.height, 'planet-wave');
-    var bottomWave = ghostPlanetWaves.create(currentPlanet.x, currentPlanet.y - game.world.height, 'planet-wave');
-    var leftWave   = ghostPlanetWaves.create(currentPlanet.x - game.world.width, currentPlanet.y, 'planet-wave');
-    var rightWave  = ghostPlanetWaves.create(currentPlanet.x + game.world.width, currentPlanet.y, 'planet-wave');
-
     planetWave.ghosts = {
-        t: topWave,
-        b: bottomWave,
-        l: leftWave,
-        r: rightWave,
+        t: ghostPlanetWaves.create(currentPlanet.x, currentPlanet.y + game.world.height, 'planet-wave'),
+        b: ghostPlanetWaves.create(currentPlanet.x, currentPlanet.y - game.world.height, 'planet-wave'),
+        l: ghostPlanetWaves.create(currentPlanet.x - game.world.width, currentPlanet.y, 'planet-wave'),
+        r: ghostPlanetWaves.create(currentPlanet.x + game.world.width, currentPlanet.y, 'planet-wave'),
     }
 
     function setupWave(wave) {
@@ -570,12 +567,12 @@ function addPlanetWave() {
             endScale;
         if (gravityDirection == 1) {
             tint = colours.green;
-            startScale = 1;
+            startScale = 2;
             endScale = 0;
         } else {
             tint = colours.purple;
             startScale = 0;
-            endScale = 1;
+            endScale = 2;
         }
 
         wave.tint = tint;
@@ -585,17 +582,17 @@ function addPlanetWave() {
             .to({
                 x: endScale,
                 y: endScale,
-            })
+            }, Phaser.Timer.SECOND * 3)
             .start();
 
         wave.alpha = 0;
         game.add.tween(wave)
             .to({
                 alpha: 1,
-            }, Phaser.Timer.SECOND / 2)
+            }, Phaser.Timer.SECOND)
             .to({
                 alpha: 0,
-            }, Phaser.Timer.SECOND / 2)
+            }, Phaser.Timer.SECOND * 2)
             .start();
     }
 
@@ -607,7 +604,7 @@ function addPlanetWave() {
         }
     }
 
-    game.time.events.add(Phaser.Timer.SECOND, function() {
+    game.time.events.add(Phaser.Timer.SECOND * 3, function() {
         planetWave.destroy();
     }, this);
 }
