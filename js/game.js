@@ -90,25 +90,84 @@ var loadState = {
     preload: function() {
         game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
 
+        game.load.image('background', 'assets/background.png');
+        game.load.image('midground',  'assets/midground.png');
+        game.load.image('foreground', 'assets/foreground.png');
+    },
+
+    create: function() {
+        setupScreen();
+
+        addBackground();
+
+        var titleDisplay = game.add.text(game.world.centerX, 40, 'FATAL ATTRACTION');
+        titleDisplay.anchor.set(0.5, 0);
+
+        titleDisplay.font = 'Press Start 2P';
+        titleDisplay.fontSize = 105;
+
+        titleDisplay.fill   = '#' + colours.yellow.toString(16);
+        titleDisplay.stroke = '#' + colours.black.toString(16);
+
+        titleDisplay.strokeThickness = 3;
+
+        var loadingDisplay = game.add.text(game.world.centerX, 500, 'Loading...');
+        loadingDisplay.anchor.set(0.5, 0);
+
+        loadingDisplay.font = 'Press Start 2P';
+        loadingDisplay.fontSize = 60;
+
+        loadingDisplay.fill   = '#' + colours.blue.toString(16);
+        loadingDisplay.stroke = '#' + colours.black.toString(16);
+
+        loadingDisplay.strokeThickness = 3;
+
+        var progressDisplay = game.add.text(game.world.centerX, 720, '');
+        progressDisplay.anchor.set(0.5, 0);
+
+        progressDisplay.font = 'Press Start 2P';
+        progressDisplay.fontSize = 60;
+
+        progressDisplay.fill   = '#' + colours.blue.toString(16);
+        progressDisplay.stroke = '#' + colours.black.toString(16);
+
+        progressDisplay.strokeThickness = 3;
+
+        flashTextTimer = game.time.create(false);
+
+        flashTextTimer.loop(Phaser.Timer.SECOND / 2, function() {
+            loadingDisplay.visible = !loadingDisplay.visible;
+        }, this);
+
+        flashTextTimer.start();
+
+        game.load.audio('discord-sfx',       'assets/discord.wav');
         game.load.audio('shoot-sfx',         'assets/shoot.wav');
         game.load.audio('boom-sfx',          'assets/boom.wav');
         game.load.audio('attractor-hit-sfx', 'assets/attractor-hit.wav');
         game.load.audio('repulsor-hit-sfx',  'assets/repulsor-hit.wav');
-        game.load.audio('discord-sfx',       'assets/discord.wav');
 
-        game.load.image('background',  'assets/background.png');
-        game.load.image('midground',   'assets/midground.png');
-        game.load.image('foreground',  'assets/foreground.png');
         game.load.image('player',      'assets/player.png');
         game.load.image('planet',      'assets/planet.png');
         game.load.image('planet-wave', 'assets/planet-wave.png');
         game.load.image('projectile',  'assets/projectile.png');
 
         game.load.physics('physics-data', 'assets/physics.json');
-    },
 
-    create: function() {
-        game.state.start('start');
+        game.load.onFileComplete.add(function(progress, cacheKey) {
+            progressDisplay.setText(progress + '%');
+
+            if (cacheKey === 'discord-sfx') {
+                var discordSfx = game.add.audio('discord-sfx', 0.3);
+                discordSfx.loopFull();
+            }
+        }, this);
+
+        game.load.onLoadComplete.add(function() {
+            game.state.start('start');
+        }, this);
+
+        game.load.start();
     },
 };
 
@@ -183,9 +242,6 @@ var startState = {
         }, this);
 
         flashTextTimer.start();
-
-        var discordSfx = game.add.audio('discord-sfx', 0.3);
-        discordSfx.loopFull();
     },
 
     update: function() {
