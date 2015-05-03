@@ -71,10 +71,11 @@ window.startGame = function() {
         Phaser.AUTO
     );
 
+    game.state.add('load',  loadState);
     game.state.add('start', startState);
-    game.state.add('main', mainState);
+    game.state.add('main',  mainState);
 
-    game.state.start('start');
+    game.state.start('load');
 };
 
 window.WebFontConfig = {
@@ -85,11 +86,15 @@ window.WebFontConfig = {
     },
 };
 
-var startState = {
+var loadState = {
     preload: function() {
-        game.load.script('webfont',    '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
+        game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
 
-        game.load.audio('discord-sfx', 'assets/discord.wav');
+        game.load.audio('shoot-sfx',         'assets/shoot.wav');
+        game.load.audio('boom-sfx',          'assets/boom.wav');
+        game.load.audio('attractor-hit-sfx', 'assets/attractor-hit.wav');
+        game.load.audio('repulsor-hit-sfx',  'assets/repulsor-hit.wav');
+        game.load.audio('discord-sfx',       'assets/discord.wav');
 
         game.load.image('background',  'assets/background.png');
         game.load.image('midground',   'assets/midground.png');
@@ -97,8 +102,17 @@ var startState = {
         game.load.image('player',      'assets/player.png');
         game.load.image('planet',      'assets/planet.png');
         game.load.image('planet-wave', 'assets/planet-wave.png');
+        game.load.image('projectile',  'assets/projectile.png');
+
+        game.load.physics('physics-data', 'assets/physics.json');
     },
 
+    create: function() {
+        game.state.start('start');
+    },
+};
+
+var startState = {
     create: function() {
         setupScreen();
         setupControls();
@@ -215,25 +229,6 @@ var startState = {
 }
 
 var mainState = {
-    preload: function() {
-        game.load.script('webfont',          '//ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js');
-
-        game.load.audio('shoot-sfx',         'assets/shoot.wav');
-        game.load.audio('boom-sfx',          'assets/boom.wav');
-        game.load.audio('attractor-hit-sfx', 'assets/attractor-hit.wav');
-        game.load.audio('repulsor-hit-sfx',  'assets/repulsor-hit.wav');
-        game.load.audio('discord-sfx',       'assets/discord.wav');
-
-        game.load.image('background',        'assets/background.png');
-        game.load.image('midground',         'assets/midground.png');
-        game.load.image('foreground',        'assets/foreground.png');
-        game.load.image('player',            'assets/player.png');
-        game.load.image('planet',            'assets/planet.png');
-        game.load.image('projectile',        'assets/projectile.png');
-
-        game.load.physics('physics-data',    'assets/physics.json');
-    },
-
     create: function() {
         setupScreen();
         setupControls();
