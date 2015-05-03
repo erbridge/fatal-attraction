@@ -3,13 +3,14 @@
 'use strict';
 
 var game,
-    difficultyMode,
+    practiceMode = true,
     planetCollisionGroup,
     playerCollisionGroup,
     projectileCollisionGroup,
     cursorControls,
     wasdControls,
     zqsdControls,
+    extraControls,
     background,
     midground,
     foreground,
@@ -35,6 +36,7 @@ function shutdown() {
     cursorControls = undefined;
     wasdControls   = undefined;
     zqsdControls   = undefined;
+    extraControls  = undefined;
 
     background = undefined;
     midground  = undefined;
@@ -81,8 +83,6 @@ window.startGame = function() {
     game.state.add('start', startState);
     game.state.add('main',  mainState);
 
-    difficultyMode = 1;
-
     game.state.start('load');
 };
 
@@ -119,22 +119,22 @@ var loadState = {
 
         titleDisplay.strokeThickness = 3;
 
-        var loadingDisplay = game.add.text(game.world.centerX, 500, 'Loading...');
+        var loadingDisplay = game.add.text(game.world.centerX, 720, 'Loading...');
         loadingDisplay.anchor.set(0.5, 0);
 
         loadingDisplay.font = 'Press Start 2P';
         loadingDisplay.fontSize = 60;
 
-        loadingDisplay.fill   = '#' + colours.blue.toString(16);
+        loadingDisplay.fill   = '#' + colours.orange.toString(16);
         loadingDisplay.stroke = '#' + colours.black.toString(16);
 
         loadingDisplay.strokeThickness = 3;
 
-        var progressDisplay = game.add.text(game.world.centerX, 720, '');
+        var progressDisplay = game.add.text(game.world.centerX, 890, '');
         progressDisplay.anchor.set(0.5, 0);
 
         progressDisplay.font = 'Press Start 2P';
-        progressDisplay.fontSize = 60;
+        progressDisplay.fontSize = 30;
 
         progressDisplay.fill   = '#' + colours.blue.toString(16);
         progressDisplay.stroke = '#' + colours.black.toString(16);
@@ -144,7 +144,8 @@ var loadState = {
         flashTextTimer = game.time.create(false);
 
         flashTextTimer.loop(Phaser.Timer.SECOND / 2, function() {
-            loadingDisplay.visible = !loadingDisplay.visible;
+            loadingDisplay.visible  = !loadingDisplay.visible;
+            progressDisplay.visible = !progressDisplay.visible;
         }, this);
 
         flashTextTimer.start();
@@ -190,7 +191,7 @@ var startState = {
         setupPhysics();
 
         addBackground();
-        addPlanets(7);
+        addPlanets(11);
 
         this.titleDisplay = game.add.text(game.world.centerX, 40, 'FATAL ATTRACTION');
         this.titleDisplay.anchor.set(0.5, 0);
@@ -242,15 +243,27 @@ var startState = {
         this.readyDisplay.font = 'Press Start 2P';
         this.readyDisplay.fontSize = 60;
 
-        this.readyDisplay.fill   = '#' + colours.blue.toString(16);
+        this.readyDisplay.fill   = '#' + colours.orange.toString(16);
         this.readyDisplay.stroke = '#' + colours.black.toString(16);
 
         this.readyDisplay.strokeThickness = 3;
 
+        this.practiceDisplay = game.add.text(game.world.centerX, 890, 'Press SPACE to practice');
+        this.practiceDisplay.anchor.set(0.5, 0);
+
+        this.practiceDisplay.font = 'Press Start 2P';
+        this.practiceDisplay.fontSize = 30;
+
+        this.practiceDisplay.fill   = '#' + colours.blue.toString(16);
+        this.practiceDisplay.stroke = '#' + colours.black.toString(16);
+
+        this.practiceDisplay.strokeThickness = 3;
+
         flashTextTimer = game.time.create(false);
 
         flashTextTimer.loop(Phaser.Timer.SECOND / 2, function() {
-            this.readyDisplay.visible = !this.readyDisplay.visible;
+            this.readyDisplay.visible    = !this.readyDisplay.visible;
+            this.practiceDisplay.visible = !this.practiceDisplay.visible;
         }, this);
 
         flashTextTimer.start();
@@ -263,7 +276,13 @@ var startState = {
 
         planets.forEachAlive(maybeWrap, this);
 
-        if (isUpDown() || isDownDown() || isLeftDown() || isRightDown()) {
+        if (isUpDown() || isDownDown() || isLeftDown() || isRightDown() || isSpaceDown()) {
+            if (isSpaceDown()) {
+                practiceMode = true;
+            } else {
+                practiceMode = false;
+            }
+
             flashTextTimer.destroy();
 
             this.titleDisplay.destroy();
@@ -271,6 +290,7 @@ var startState = {
             this.controlDisplayDown.destroy();
             this.controlDisplayLeftRight.destroy();
             this.readyDisplay.destroy();
+            this.practiceDisplay.destroy();
 
             game.time.events.add(Phaser.Timer.SECOND / 2, function() {
                 var warningDisplay = game.add.text(game.world.centerX, game.world.centerY, 'Don\'t Die');
@@ -309,12 +329,25 @@ var mainState = {
 
         playTimer = game.time.create(false);
 
-        addPlayers(1);
+        if (practiceMode) {
+            addPlayers(1);
 
-        if (difficultyMode === 0) {
-            addPlanets(7);
-        } else {
             addPlanets(3);
+
+            var practiceLabelDisplay = game.add.text(game.world.centerX, 40, 'Practice');
+            practiceLabelDisplay.anchor.set(0.5, 0);
+
+            practiceLabelDisplay.font = 'Press Start 2P';
+            practiceLabelDisplay.fontSize = 30;
+
+            practiceLabelDisplay.fill   = '#' + colours.red.toString(16);
+            practiceLabelDisplay.stroke = '#' + colours.black.toString(16);
+
+            practiceLabelDisplay.strokeThickness = 3;
+        } else {
+            addPlayers(1, true);
+
+            addPlanets(4);
 
             playTimer.loop(Phaser.Timer.SECOND * 5, function() {
                 addPlanet(
@@ -322,10 +355,10 @@ var mainState = {
                     game.rnd.integerInRange(0, 1) ? 0 : game.world.height
                 );
             }, this);
-        }
 
-        players.forEachAlive(addTimer, this);
-        players.forEachAlive(addSpeedDisplay, this);
+            players.forEachAlive(addTimer, this);
+            players.forEachAlive(addSpeedDisplay, this);
+        }
 
         playTimer.start();
     },
@@ -346,11 +379,15 @@ var mainState = {
         planets.forEachAlive(maybeWrap, this);
         projectiles.forEachAlive(maybeWrap, this);
 
-        if (isGameOver && (isUpDown() || isDownDown() || isLeftDown() || isRightDown())) {
+        if (isGameOver && (isUpDown() || isDownDown() || isLeftDown() || isRightDown() || isSpaceDown())) {
             flashTextTimer.destroy();
             playTimer.destroy();
 
-            game.state.start('main');
+            if (isSpaceDown()) {
+                game.state.start('start');
+            } else {
+                game.state.start('main');
+            }
         }
     },
 
@@ -374,7 +411,7 @@ var mainState = {
 
         if (players) {
             players.forEachAlive(function(player) {
-                if (player.timer.running) {
+                if (player.timer && player.timer.running) {
                     setTimeDisplay(player);
                 }
             }, this);
@@ -400,15 +437,27 @@ function doGameOver() {
         readyDisplay.font = 'Press Start 2P';
         readyDisplay.fontSize = 60;
 
-        readyDisplay.fill   = '#' + colours.blue.toString(16);
+        readyDisplay.fill   = '#' + colours.orange.toString(16);
         readyDisplay.stroke = '#' + colours.black.toString(16);
 
         readyDisplay.strokeThickness = 3;
+
+        var backDisplay = game.add.text(game.world.centerX, 890, 'Press SPACE to go back');
+        backDisplay.anchor.set(0.5, 0);
+
+        backDisplay.font = 'Press Start 2P';
+        backDisplay.fontSize = 30;
+
+        backDisplay.fill   = '#' + colours.blue.toString(16);
+        backDisplay.stroke = '#' + colours.black.toString(16);
+
+        backDisplay.strokeThickness = 3;
 
         flashTextTimer = game.time.create(false);
 
         flashTextTimer.loop(Phaser.Timer.SECOND / 2, function() {
             readyDisplay.visible = !readyDisplay.visible;
+            backDisplay.visible  = !backDisplay.visible;
         }, this);
 
         flashTextTimer.start();
@@ -440,6 +489,10 @@ function setupControls() {
         left:  game.input.keyboard.addKey(Phaser.Keyboard.Q),
         right: game.input.keyboard.addKey(Phaser.Keyboard.D),
     };
+
+    extraControls = {
+        space: game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
+    }
 }
 
 function setupPhysics() {
@@ -467,14 +520,14 @@ function setupProjectiles() {
     projectiles.shootSfx = game.add.audio('shoot-sfx', 0.5);
 }
 
-function addPlayers(count) {
+function addPlayers(count, trackSpeed) {
     // TODO: Use the count.
 
     players = game.add.group();
 
     players.boomSfx = game.add.audio('boom-sfx', 0.5);
 
-    addPlayer(game.world.centerX, game.world.centerY);
+    addPlayer(game.world.centerX, game.world.centerY, trackSpeed);
 }
 
 function addPlanets(count) {
@@ -721,7 +774,7 @@ function addPlanetWave() {
     }, this);
 }
 
-function addPlayer(x, y) {
+function addPlayer(x, y, trackSpeed) {
     var player = players.create(x, y, 'player');
     game.physics.p2.enable(player);
 
@@ -744,7 +797,9 @@ function addPlayer(x, y) {
         playerHit(player, body);
     }, this);
 
-    player.topSpeed = 0;
+    if (trackSpeed) {
+        player.topSpeed = 0;
+    }
 
     player.canFire = true;
 }
@@ -889,7 +944,10 @@ function playerHit(player, body) {
 }
 
 function destroyPlayer(player) {
-    player.timer.destroy();
+    if (player.timer) {
+        player.timer.destroy();
+    }
+
     player.destroy();
 
     players.boomSfx.play();
@@ -914,7 +972,7 @@ function movePlayer(player) {
     move(player, 5, false);
 
     var speed = Math.sqrt(Math.pow(player.body.velocity.x, 2) +  Math.pow(player.body.velocity.y, 2));
-    if (speed > player.topSpeed) {
+    if (player.topSpeed !== undefined && speed > player.topSpeed) {
         player.topSpeed = speed;
         setSpeedDisplay(player);
     }
@@ -1124,6 +1182,10 @@ function isLeftDown() {
 
 function isRightDown() {
     return cursorControls.right.isDown || wasdControls.right.isDown || zqsdControls.right.isDown;
+}
+
+function isSpaceDown() {
+    return extraControls.space.isDown;
 }
 
 function tweenTint(obj, targetTint, time) {
