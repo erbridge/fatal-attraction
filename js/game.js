@@ -19,7 +19,7 @@ var game,
     gravityDirection,
     players,
     projectiles,
-    screenShake,
+    screenShakeAmount,
     flashTextTimer,
     playTimer,
     timeRecord     = parseInt(localStorage.getItem('fatal-attraction-time-record')) || 0,
@@ -49,6 +49,11 @@ function shutdown() {
     players = undefined;
 
     projectiles = undefined;
+
+    screenShakeAmount = undefined;
+
+    flashTextTimer = undefined;
+    playTimer      = undefined;
 
     isGameOver = undefined;
 }
@@ -168,6 +173,10 @@ var loadState = {
         }, this);
 
         game.load.start();
+    },
+
+    shutdown: function() {
+        shutdown();
     },
 };
 
@@ -396,7 +405,7 @@ function setupScreen() {
     game.scale.pageAlignVertically = true;
     game.scale.setScreenSize(true);
 
-    screenShake = 0;
+    screenShakeAmount = 0;
 }
 
 function setupControls() {
@@ -491,8 +500,8 @@ function lerpWorldCenterTowardsPlayer(player) {
 }
 
 function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
-    var x = (game.world.centerX - targetX) / lerpFactor + screenShake;
-    var y = (game.world.centerY - targetY) / lerpFactor + screenShake;
+    var x = (game.world.centerX - targetX) / lerpFactor + screenShakeAmount;
+    var y = (game.world.centerY - targetY) / lerpFactor + screenShakeAmount;
 
     background.tilePosition.x += x / 1.3;
     background.tilePosition.y += y / 1.3;
@@ -520,11 +529,11 @@ function lerpWorldCenterTowardsXY(targetX, targetY, lerpFactor) {
         projectiles.forEachAlive(lerp, this);
     }
 
-    screenShake = -screenShake * 0.9;
+    screenShakeAmount = -screenShakeAmount * 0.9;
 }
 
 function shakeScreen(value) {
-    screenShake += value;
+    screenShakeAmount += value;
 }
 
 function addPlanet(x, y, isCurrent) {
