@@ -340,10 +340,40 @@ var mainState = {
             practiceLabelDisplay.font = 'Press Start 2P';
             practiceLabelDisplay.fontSize = 30;
 
-            practiceLabelDisplay.fill   = '#' + colours.red.toString(16);
+            practiceLabelDisplay.fill   = '#' + colours.yellow.toString(16);
             practiceLabelDisplay.stroke = '#' + colours.black.toString(16);
 
             practiceLabelDisplay.strokeThickness = 3;
+
+            var controlDisplayUp = game.add.text(40, 40, 'UP - Gravity Gun');
+
+            controlDisplayUp.font = 'Press Start 2P';
+            controlDisplayUp.fontSize = 20;
+
+            controlDisplayUp.fill   = '#' + colours.green.toString(16);
+            controlDisplayUp.stroke = '#' + colours.black.toString(16);
+
+            controlDisplayUp.strokeThickness = 3;
+
+            var controlDisplayDown = game.add.text(40, 80, 'DOWN - Anti-Gravity Gun');
+
+            controlDisplayDown.font = 'Press Start 2P';
+            controlDisplayDown.fontSize = 20;
+
+            controlDisplayDown.fill   = '#' + colours.purple.toString(16);
+            controlDisplayDown.stroke = '#' + colours.black.toString(16);
+
+            controlDisplayDown.strokeThickness = 3;
+
+            var controlDisplayLeftRight = game.add.text(40, 120, 'LEFT / RIGHT - Rotate');
+
+            controlDisplayLeftRight.font = 'Press Start 2P';
+            controlDisplayLeftRight.fontSize = 20;
+
+            controlDisplayLeftRight.fill   = '#' + colours.red.toString(16);
+            controlDisplayLeftRight.stroke = '#' + colours.black.toString(16);
+
+            controlDisplayLeftRight.strokeThickness = 3;
         } else {
             addPlayers(1, true);
 
@@ -617,8 +647,8 @@ function addPlanet(x, y, isCurrent) {
 
     planet.body.rotateRight(game.rnd.realInRange(-20, 20));
 
-    planet.body.mass    = 1000;
-    planet.body.damping = 0;
+    planet.body.mass           = 1000;
+    planet.body.damping        = 0;
     planet.body.angularDamping = 0;
 
     planet.body.setCollisionGroup(planetCollisionGroup);
