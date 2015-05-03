@@ -759,15 +759,21 @@ function addPlanetWave() {
 
         var tint,
             startScale,
-            endScale;
+            endScale,
+            fadeInDuration,
+            fadeOutDuration;
         if (gravityDirection == 1) {
             tint = colours.green;
             startScale = 2;
             endScale = 0;
+            fadeInDuration = Phaser.Timer.SECOND * 2;
+            fadeOutDuration = Phaser.Timer.SECOND;
         } else {
             tint = colours.purple;
             startScale = 0;
             endScale = 2;
+            fadeInDuration = Phaser.Timer.SECOND;
+            fadeOutDuration = Phaser.Timer.SECOND * 2;
         }
 
         wave.tint = tint;
@@ -784,10 +790,10 @@ function addPlanetWave() {
         wave.fadeTween = game.add.tween(wave)
             .to({
                 alpha: 1,
-            }, Phaser.Timer.SECOND)
+            }, fadeInDuration)
             .to({
                 alpha: 0,
-            }, Phaser.Timer.SECOND * 2)
+            }, fadeOutDuration)
             .start();
     }
 
@@ -799,7 +805,7 @@ function addPlanetWave() {
         }
     }
 
-    game.time.events.add(Phaser.Timer.SECOND * 3, function() {
+    game.time.events.add(Phaser.Timer.SECOND * 4, function() {
         planetWave.destroy();
     }, this);
 }
