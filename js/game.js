@@ -3,6 +3,7 @@
 'use strict';
 
 var game,
+    difficultyMode,
     planetCollisionGroup,
     playerCollisionGroup,
     projectileCollisionGroup,
@@ -79,6 +80,8 @@ window.startGame = function() {
     game.state.add('load',  loadState);
     game.state.add('start', startState);
     game.state.add('main',  mainState);
+
+    difficultyMode = 1;
 
     game.state.start('load');
 };
@@ -304,13 +307,26 @@ var mainState = {
         setupPlanetWaves();
         setupProjectiles();
 
+        playTimer = game.time.create(false);
+
         addPlayers(1);
-        addPlanets(7);
+
+        if (difficultyMode === 0) {
+            addPlanets(7);
+        } else {
+            addPlanets(3);
+
+            playTimer.loop(Phaser.Timer.SECOND * 5, function() {
+                addPlanet(
+                    game.rnd.integerInRange(0, 1) ? 0 : game.world.width,
+                    game.rnd.integerInRange(0, 1) ? 0 : game.world.height
+                );
+            }, this);
+        }
 
         players.forEachAlive(addTimer, this);
         players.forEachAlive(addSpeedDisplay, this);
 
-        playTimer = game.time.create(false);
         playTimer.start();
     },
 
