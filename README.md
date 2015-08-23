@@ -1,12 +1,74 @@
 # Fatal Attraction
 
-This is a game I made for Ludum Dare 32. The theme was **An Unconventional Weapon**.
+> A game about a close encounter with gravity
 
-## Tools
+![title screen](/promo-art/title.png)
 
-- [Sublime Text 3](http://www.sublimetext.com/) - IDE
-- [Phaser](https://phaser.io/) - Engine
-- [Chromium](https://www.chromium.org/) - Browser
-- [GIMP](http://www.gimp.org/) - Art
-- [Chiptone](http://sfbgames.com/chiptone/) - Audio
-- [SunVox](http://www.warmplace.ru/soft/sunvox/) - Audio
+This is a game originally made for Ludum Dare 32. The theme was **An Unconventional Weapon**.
+
+
+## Install
+
+Either play [online](http://erbridge.co.uk/fatal-attraction/) or download the appropriate [distribution for your system](/dist/).
+
+
+## Develop
+
+This game can be run directly in the browser, or run as a standalone executable using [Electron](http://electron.atom.io).
+
+
+### Web
+
+Since the site is hosted on GitHub Pages (hence `gh-pages` being the main branch), I use Jekyll when developing it. Any webserver would do, however.
+
+
+#### Install
+
+```
+$ bundle install --path="./bundle"
+```
+
+
+#### Run
+
+```
+$ bundle exec jekyll serve --watch
+```
+
+
+### Electron
+
+#### Install
+
+```
+$ npm install
+```
+
+
+#### Run
+
+```
+$ npm start
+```
+
+
+#### Build
+
+```
+$ npm run build
+```
+
+
+#### Distribute
+
+```
+$ npm run dist
+```
+
+
+### Assets
+
+The raw audio assets can be found in `raw-assets/`, and are editable in:
+
+- `.cpt` - [Chiptone](http://sfbgames.com/chiptone/)
+- `.sunvox` - [SunVox](http://www.warmplace.ru/soft/sunvox/)
