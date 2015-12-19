@@ -1,6 +1,6 @@
-.bundle/
-_site/
-build/
-dist/
-node_modules/
+/.bundle/
+/_site/
+/build/
+/dist/
+/node_modules/
 *.sublime-workspace
