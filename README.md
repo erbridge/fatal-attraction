@@ -9,7 +9,7 @@ This is a game originally made for Ludum Dare 32. The theme was **An Unconventio
 
 ## Install
 
-Either play [online](http://erbridge.co.uk/fatal-attraction/) or download the appropriate [distribution for your system](/dist/).
+Either play [online](http://erbridge.co.uk/fatal-attraction/) or download the appropriate [distribution for your system](https://github.com/erbridge/fatal-attraction/releases).
 
 
 ## Develop
