@@ -2,6 +2,6 @@
   "name": "fatal-attraction",
   "private": true,
   "dependencies": {
-    "phaser": "~2.4.2"
+    "phaser": "2.4.2"
   }
 }

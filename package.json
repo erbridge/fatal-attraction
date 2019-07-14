@@ -42,7 +42,7 @@
     "electron-app"
   ],
   "devDependencies": {
-    "electron-packager": "^5.0.2",
-    "electron-prebuilt": "^0.31.0"
+    "electron-packager": "5.0.2",
+    "electron-prebuilt": "0.31.0"
   }
 }
