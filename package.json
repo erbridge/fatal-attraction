@@ -7,9 +7,9 @@
   "license": "MIT",
   "repository": "erbridge/fatal-attraction",
   "author": {
-    "name": "Felix Laurie von Massenbach",
-    "email": "felix@erbridge.co.uk",
-    "url": "erbridge.co.uk"
+    "name": "erbridge",
+    "email": "f@erbridge.co.uk",
+    "url": "https://erbridge.co.uk"
   },
   "engines": {
     "node": ">=0.10.0"
